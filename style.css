@@ -1,0 +1,1396 @@
+/* Estilos Visuales: Carrera de Jinetes (Baraja Española) */
+:root {
+    --bg-dark: #0f172a;
+    --turf-green: #15803d;
+    --turf-dark: #166534;
+    --turf-track: #14532d;
+    --wood-border: #78350f;
+    --wood-dark: #451a03;
+    --gold: #f59e0b;
+    --gold-bright: #fbbf24;
+    --gold-glow: rgba(245, 158, 11, 0.4);
+    
+    --card-width: 90px;
+    --card-height: 135px;
+    --card-radius: 8px;
+    
+    --suit-oros: #f59e0b;
+    --suit-copas: #ef4444;
+    --suit-espadas: #3b82f6;
+    --suit-bastos: #10b981;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    background-color: var(--bg-dark);
+    background-image: 
+        radial-gradient(circle at 50% 20%, rgba(20, 83, 45, 0.45) 0%, transparent 70%),
+        linear-gradient(to bottom, #090d16, #0f172a 100%);
+    color: #f8fafc;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+/* Encabezado Superior */
+.game-header {
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    border-bottom: 2px solid #334155;
+    padding: 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+    z-index: 20;
+}
+
+.logo-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-icon {
+    font-size: 2rem;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+}
+
+.title-wrap h1 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, #fef08a, #f59e0b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 0.5px;
+}
+
+.subtitle {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-weight: 600;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.bankroll-box {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid var(--gold);
+    padding: 6px 14px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 0 10px var(--gold-glow);
+}
+
+.bankroll-label {
+    font-size: 0.75rem;
+    color: #cbd5e1;
+    font-weight: 600;
+}
+
+.bankroll-val {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #fef08a;
+    font-family: monospace;
+}
+
+.btn-icon-reload {
+    background: transparent;
+    border: none;
+    color: var(--gold);
+    cursor: pointer;
+    font-size: 1rem;
+    transition: transform 0.2s;
+}
+
+.btn-icon-reload:hover {
+    transform: rotate(90deg);
+}
+
+.btn-header {
+    background: #334155;
+    color: #f8fafc;
+    border: 1px solid #475569;
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-header:hover {
+    background: #475569;
+    border-color: #64748b;
+}
+
+.btn-header.muted {
+    background: #451a03;
+    border-color: #78350f;
+    color: #fca5a5;
+}
+
+.party-badge-indicator {
+    background: #8b5cf6;
+    color: #ffffff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 12px;
+}
+
+/* Barra del Relator del Hipódromo */
+.commentary-bar {
+    background: linear-gradient(90deg, #1e1b4b, #0f172a 40%, #1e1b4b);
+    border-bottom: 1px solid #312e81;
+    padding: 8px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 0.95rem;
+}
+
+.commentary-badge {
+    background: #dc2626;
+    color: #ffffff;
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+    animation: blink-live 1.8s infinite;
+}
+
+@keyframes blink-live {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+.commentary-text {
+    color: #e2e8f0;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.commentary-pulse {
+    animation: text-pop 0.4s ease;
+}
+
+@keyframes text-pop {
+    0% { transform: scale(0.98); opacity: 0.7; }
+    50% { transform: scale(1.02); color: #fef08a; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Contenedor Principal */
+.main-layout {
+    display: flex;
+    flex: 1;
+    padding: 16px;
+    gap: 16px;
+    max-width: 1650px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Área de Pista y Carreras */
+.track-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+}
+
+.track-container {
+    background: radial-gradient(circle at 50% 50%, #15803d 0%, #14532d 100%);
+    border: 6px solid #78350f;
+    border-radius: 12px;
+    box-shadow: 
+        inset 0 0 40px rgba(0,0,0,0.6),
+        0 8px 24px rgba(0,0,0,0.5);
+    padding: 16px;
+    position: relative;
+    overflow-x: auto;
+}
+
+/* Alineación Perfecta de la Cuadrícula usando la variable CSS --steps-count */
+.track-steps-header {
+    display: grid;
+    grid-template-columns: 140px minmax(75px, 1fr) repeat(var(--steps-count, 7), minmax(75px, 1fr)) 90px;
+    gap: 8px;
+    margin-bottom: 6px;
+    text-align: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #cbd5e1;
+    min-width: 820px;
+}
+
+.step-lane-label {
+    background: rgba(0,0,0,0.4);
+    padding: 4px;
+    border-radius: 4px;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.step-start-label {
+    background: rgba(254, 240, 138, 0.15);
+    border: 1px solid rgba(254, 240, 138, 0.3);
+    padding: 4px;
+    border-radius: 4px;
+    color: #fef08a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.step-num-label {
+    background: rgba(0,0,0,0.25);
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.step-finish-label {
+    background: rgba(220, 38, 38, 0.4);
+    border: 1px solid rgba(239, 68, 68, 0.5);
+    color: #fca5a5;
+    padding: 4px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Fila de Vallas / Obstáculos */
+.track-hurdles-row {
+    display: grid;
+    grid-template-columns: 140px minmax(75px, 1fr) repeat(var(--steps-count, 7), minmax(75px, 1fr)) 90px;
+    gap: 8px;
+    padding: 6px 0 10px 0;
+    margin-bottom: 12px;
+    border-bottom: 2px dashed rgba(254, 240, 138, 0.3);
+    align-items: center;
+    min-width: 820px;
+}
+
+.hurdle-placeholder {
+    color: #fef08a;
+    font-weight: 800;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hurdle-empty-start {
+    color: rgba(255, 255, 255, 0.2);
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hurdle-finish-banner {
+    color: #fca5a5;
+    font-weight: 800;
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+.hurdle-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    position: relative;
+}
+
+.hurdle-label {
+    font-size: 0.65rem;
+    color: #e2e8f0;
+    font-weight: 600;
+}
+
+.hurdle-card-wrapper {
+    perspective: 800px;
+    width: 50px;
+    height: 72px;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hurdle-card-wrapper .spanish-card {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.hurdle-card-wrapper .spanish-card .card-border {
+    padding: 2px;
+}
+
+.hurdle-card-wrapper .spanish-card .suit-svg {
+    width: 16px !important;
+    height: 16px !important;
+}
+
+.hurdle-card-wrapper .spanish-card .card-val {
+    font-size: 0.65rem !important;
+}
+
+.hurdle-trigger-flip {
+    animation: flip-hurdle-3d 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes flip-hurdle-3d {
+    0% { transform: scale(1) rotateY(0deg); }
+    40% { transform: scale(1.2) translateY(-10px) rotateY(90deg); }
+    100% { transform: scale(1) translateY(0) rotateY(180deg); }
+}
+
+.hurdle-penalty-popup {
+    position: absolute;
+    top: -26px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #dc2626;
+    color: #ffffff;
+    font-size: 0.7rem;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    z-index: 15;
+    animation: bounce-penalty 0.6s infinite alternate;
+}
+
+@keyframes bounce-penalty {
+    0% { transform: translateX(-50%) translateY(0); }
+    100% { transform: translateX(-50%) translateY(-6px); }
+}
+
+/* Carriles de Caballos */
+.track-lane {
+    display: grid;
+    grid-template-columns: 140px 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 8px;
+    padding: 6px;
+    border: 1px solid rgba(255,255,255,0.06);
+    position: relative;
+    min-width: 820px;
+}
+
+.lane-info {
+    border-left: 5px solid #ffffff;
+    padding-left: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.lane-suit-icon {
+    display: flex;
+    align-items: center;
+}
+
+.lane-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.lane-name {
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #f8fafc;
+}
+
+.lane-horse-name {
+    font-size: 0.65rem;
+    color: #cbd5e1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 90px;
+}
+
+.lane-track-cells {
+    display: grid;
+    grid-template-columns: minmax(75px, 1fr) repeat(var(--steps-count, 7), minmax(75px, 1fr)) 90px;
+    gap: 8px;
+    align-items: center;
+}
+
+.track-cell {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    min-height: 72px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    transition: background 0.2s;
+}
+
+.cell-0 {
+    background: rgba(254, 240, 138, 0.08);
+    border-color: rgba(254, 240, 138, 0.3);
+}
+
+.cell-marker {
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.2);
+    font-weight: 700;
+}
+
+.meta-marker {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.cell-finish {
+    background: repeating-linear-gradient(
+        45deg,
+        #1e293b,
+        #1e293b 8px,
+        #dc2626 8px,
+        #dc2626 16px
+    );
+    border: 2px solid #ef4444;
+}
+
+/* Jinetes en la pista */
+.horse-runner-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    animation: idle-horse 1.2s ease-in-out infinite alternate;
+}
+
+.horse-sprite {
+    width: 65px;
+    height: 48px;
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.4));
+}
+
+.horse-hud-badge {
+    background: rgba(15, 23, 42, 0.9);
+    border: 1.5px solid;
+    border-radius: 10px;
+    padding: 1px 6px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-top: -4px;
+}
+
+.horse-badge-name {
+    font-size: 0.55rem;
+    font-weight: 800;
+    color: #f8fafc;
+}
+
+@keyframes idle-horse {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-3px); }
+}
+
+.horse-advancing {
+    animation: gallop-jump 0.3s ease-out;
+}
+
+@keyframes gallop-jump {
+    0% { transform: scale(1) translateX(0); }
+    50% { transform: scale(1.15) translateY(-8px) translateX(6px); }
+    100% { transform: scale(1) translateX(0); }
+}
+
+.horse-retreating {
+    animation: stumble-back 0.4s ease-in;
+}
+
+@keyframes stumble-back {
+    0% { transform: scale(1) translateX(0); }
+    30% { transform: rotate(-15deg) translateY(-5px); }
+    100% { transform: scale(1) translateX(0); }
+}
+
+.horse-penalized-flash {
+    animation: penalty-flash 0.6s ease-out 2;
+}
+
+@keyframes penalty-flash {
+    0%, 100% { filter: brightness(1); }
+    50% { filter: brightness(2) drop-shadow(0 0 8px #ef4444); }
+}
+
+/* Barra de Controles de Carrera */
+.race-controls-bar {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.controls-left, .controls-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #1e1b4b;
+    font-weight: 800;
+    font-size: 0.95rem;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-primary:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(245, 158, 11, 0.45);
+}
+
+.btn-secondary {
+    background: #3b82f6;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 0.9rem;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: #2563eb;
+}
+
+.btn-secondary.btn-pause {
+    background: #ef4444;
+}
+
+.btn-secondary.btn-pause:hover {
+    background: #dc2626;
+}
+
+.btn-secondary:disabled, .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.speed-control {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #0f172a;
+    padding: 4px 8px;
+    border-radius: 8px;
+    border: 1px solid #334155;
+}
+
+.speed-label {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-weight: 600;
+}
+
+.speed-buttons {
+    display: flex;
+    gap: 4px;
+}
+
+.btn-speed {
+    background: transparent;
+    color: #cbd5e1;
+    border: none;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-speed.active {
+    background: #f59e0b;
+    color: #0f172a;
+}
+
+/* Panel de Apuestas / Paddock (Antes de largar) */
+.paddock-panel {
+    background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+    border: 2px solid #334155;
+    border-radius: 12px;
+    padding: 18px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+}
+
+.paddock-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    border-bottom: 1px solid #334155;
+    padding-bottom: 10px;
+}
+
+.paddock-header h2 {
+    font-size: 1.15rem;
+    color: #fef08a;
+}
+
+.paddock-sub {
+    font-size: 0.8rem;
+    color: #94a3b8;
+}
+
+.paddock-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 18px;
+}
+
+.suit-bet-card {
+    background: rgba(15, 23, 42, 0.7);
+    border: 2px solid #334155;
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.suit-bet-card:hover {
+    border-color: #64748b;
+    transform: translateY(-2px);
+}
+
+.suit-card-top {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.suit-card-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #f8fafc;
+}
+
+.suit-card-odds {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.suit-bet-box {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 6px;
+    padding: 6px;
+}
+
+.bet-label {
+    font-size: 0.65rem;
+    color: #94a3b8;
+    display: block;
+}
+
+.suit-bet-amount {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #fef08a;
+    font-family: monospace;
+}
+
+.btn-bet-suit {
+    width: 100%;
+    background: #334155;
+    color: #f8fafc;
+    border: 1px solid #475569;
+    padding: 8px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-bet-suit:hover {
+    background: var(--gold);
+    color: #0f172a;
+    border-color: var(--gold);
+}
+
+/* Fichas de Casino */
+.chips-selector-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 10px;
+    padding: 10px 16px;
+    margin-bottom: 16px;
+}
+
+.chips-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #cbd5e1;
+}
+
+.chips-list {
+    display: flex;
+    gap: 10px;
+}
+
+.chip-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 3px dashed #ffffff;
+    font-weight: 800;
+    font-size: 0.8rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+    transition: all 0.2s;
+}
+
+.chip-btn:hover {
+    transform: scale(1.1);
+}
+
+.chip-btn.active {
+    transform: scale(1.15) translateY(-4px);
+    box-shadow: 0 0 12px var(--gold);
+    border-style: solid;
+}
+
+.chip-10 { background: #3b82f6; color: #fff; }
+.chip-25 { background: #10b981; color: #fff; }
+.chip-50 { background: #f59e0b; color: #000; }
+.chip-100 { background: #ef4444; color: #fff; }
+.chip-250 { background: #8b5cf6; color: #fff; }
+.chip-500 { background: #1e1b4b; color: #fef08a; border-color: #fef08a; }
+
+.bet-quick-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-action-small {
+    background: #334155;
+    color: #e2e8f0;
+    border: 1px solid #475569;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-action-small:hover {
+    background: #475569;
+}
+
+.btn-action-small.btn-all-in {
+    background: linear-gradient(135deg, #dc2626, #991b1b);
+    color: #fff;
+    border-color: #ef4444;
+}
+
+.paddock-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.total-bet-summary {
+    font-size: 0.9rem;
+    color: #cbd5e1;
+}
+
+.total-bet-val {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #fef08a;
+    font-family: monospace;
+}
+
+/* Barra Lateral: El Mazo y Carta Activa */
+.side-panel {
+    width: 290px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.deck-card-box {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+
+.deck-box-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #cbd5e1;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.current-card-slot {
+    min-height: 160px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+
+.card-draw-placeholder {
+    color: #64748b;
+    font-size: 0.75rem;
+    text-align: center;
+    border: 2px dashed #334155;
+    border-radius: 8px;
+    padding: 24px 12px;
+    width: 100%;
+}
+
+.drawn-card-animation {
+    animation: draw-pop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes draw-pop {
+    0% { transform: scale(0.5) translateY(-20px); opacity: 0; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.drawn-card-label {
+    margin-top: 10px;
+    font-weight: 800;
+    font-size: 0.95rem;
+    text-align: center;
+}
+
+.stats-card-box {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    padding: 14px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.stat-item {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid #334155;
+    border-radius: 6px;
+    padding: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.stat-count {
+    font-size: 1rem;
+    font-weight: 800;
+    font-family: monospace;
+    color: #f8fafc;
+}
+
+/* ==============================================
+   DISEÑO GRÁFICO DE LA CARTA ESPAÑOLA
+   ============================================== */
+.spanish-card {
+    width: var(--card-width);
+    height: var(--card-height);
+    background: #fffdf5;
+    border-radius: var(--card-radius);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0,0,0,0.2);
+    position: relative;
+    overflow: hidden;
+    color: #0f172a;
+    font-family: 'Georgia', serif;
+}
+
+/* Reverso de la Baraja Española */
+.card-back {
+    background: #1e3a8a;
+    border: 3px solid #ffffff;
+}
+
+.card-back-pattern {
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(#3b82f6 20%, transparent 20%),
+        radial-gradient(#1e40af 20%, transparent 20%);
+    background-size: 12px 12px;
+    background-position: 0 0, 6px 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+}
+
+.card-back-inner {
+    width: 100%;
+    height: 100%;
+    border: 2px solid #93c5fd;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card-back-crest {
+    font-size: 1.2rem;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+/* Frente de la Carta */
+.card-border {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: 4px;
+    right: 4px;
+    border: 1.5px solid #d4af37;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 4px;
+}
+
+/* Pintas tradicionales de la baraja española */
+.pintas-1 {
+    border-top: 1.5px dashed #dc2626 !important;
+    border-bottom: 1.5px dashed #dc2626 !important;
+}
+
+.pintas-2 {
+    border-top: 2px dotted #2563eb !important;
+    border-bottom: 2px dotted #2563eb !important;
+}
+
+.pintas-3 {
+    border-top: 2px double #16a34a !important;
+    border-bottom: 2px double #16a34a !important;
+}
+
+.card-corner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1;
+}
+
+.corner-tl {
+    align-self: flex-start;
+}
+
+.corner-br {
+    align-self: flex-end;
+    transform: rotate(180deg);
+}
+
+.card-val {
+    font-size: 0.9rem;
+    font-weight: 800;
+}
+
+.card-center {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Figuras: Sota, Caballo, Rey */
+.figure-frame {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.figure-label {
+    font-size: 0.6rem;
+    font-weight: 800;
+    color: #475569;
+    letter-spacing: 0.5px;
+}
+
+.figure-title {
+    font-size: 0.55rem;
+    font-weight: 700;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+/* Pips / Símbolos 2 al 7 */
+.pips-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    width: 100%;
+    padding: 4px;
+}
+
+.ace-frame {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.ace-banner {
+    font-size: 0.6rem;
+    font-weight: 800;
+    margin-top: 4px;
+    color: #475569;
+}
+
+/* Modales */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.modal-card {
+    background: #1e293b;
+    border: 1px solid #475569;
+    border-radius: 14px;
+    max-width: 620px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+}
+
+.modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #334155;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    color: #fef08a;
+    font-size: 1.15rem;
+}
+
+.btn-close-modal {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 1.2rem;
+    cursor: pointer;
+}
+
+.modal-body {
+    padding: 20px;
+}
+
+.rules-content p, .rules-content li {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #cbd5e1;
+    margin-bottom: 8px;
+}
+
+.rules-content h4 {
+    color: #f59e0b;
+    margin: 14px 0 6px 0;
+    font-size: 1rem;
+}
+
+.form-group {
+    margin-bottom: 16px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #cbd5e1;
+    margin-bottom: 6px;
+}
+
+.form-group select {
+    width: 100%;
+    background: #0f172a;
+    border: 1px solid #334155;
+    color: #f8fafc;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+/* Modal de Victoria y Podio */
+.winner-hero {
+    border-radius: 10px;
+    padding: 24px;
+    text-align: center;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+
+.winner-trophy {
+    font-size: 3rem;
+}
+
+.winner-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #ffffff;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    margin: 6px 0;
+}
+
+.winner-subtitle {
+    font-size: 0.9rem;
+    color: #fef08a;
+    font-weight: 600;
+}
+
+.winner-icon {
+    margin-top: 12px;
+    filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4));
+}
+
+.victory-prize {
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.victory-prize.win {
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid #10b981;
+    color: #a7f3d0;
+}
+
+.victory-prize.loss {
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid #ef4444;
+    color: #fca5a5;
+}
+
+.prize-title {
+    font-weight: 800;
+    display: block;
+    font-size: 1.05rem;
+}
+
+.prize-amount {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #fef08a;
+}
+
+.podium-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.podium-item {
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-top: 4px solid;
+    border-radius: 8px;
+    padding: 10px 4px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.podium-medal {
+    font-size: 1.2rem;
+}
+
+.podium-name {
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.podium-steps {
+    font-size: 0.7rem;
+    color: #94a3b8;
+}
+
+.modal-footer {
+    padding: 16px 20px;
+    border-top: 1px solid #334155;
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Modo Fiesta Inputs */
+.party-player-row {
+    display: grid;
+    grid-template-columns: 1fr 105px 1fr 36px;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.party-name-input, .party-stake-input, .party-suit-select {
+    background: #0f172a;
+    border: 1px solid #334155;
+    color: #f8fafc;
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+}
+
+.btn-remove-player {
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid #ef4444;
+    border-radius: 6px;
+    color: #fca5a5;
+    cursor: pointer;
+}
+
+/* Canvas de Confeti */
+#confetti-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: 99;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Responsividad */
+@media (max-width: 1024px) {
+    .main-layout {
+        flex-direction: column;
+    }
+    .side-panel {
+        width: 100%;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+    .deck-card-box, .stats-card-box {
+        flex: 1;
+    }
+    .paddock-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .game-header {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+    .header-actions {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+    .paddock-grid {
+        grid-template-columns: 1fr;
+    }
+    .chips-selector-bar {
+        flex-direction: column;
+        gap: 10px;
+    }
+}

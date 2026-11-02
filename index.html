@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carrera de Jinetes - Baraja Española</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Canvas para lluvia de confeti triunfal -->
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- Encabezado Principal -->
+    <header class="game-header">
+        <div class="logo-area">
+            <span class="logo-icon">🏇</span>
+            <div class="title-wrap">
+                <h1>CARRERA DE JINETES</h1>
+                <span class="subtitle">El Clásico de la Baraja Española</span>
+            </div>
+        </div>
+
+        <div class="header-actions">
+            <!-- Indicador Modo Fiesta -->
+            <span id="party-mode-indicator" class="party-badge-indicator hidden">🍻 Modo Fiesta</span>
+
+            <!-- Fichas / Bankroll del Jugador -->
+            <div class="bankroll-box" title="Tus fichas disponibles">
+                <span class="bankroll-label">FICHAS:</span>
+                <span class="bankroll-val" id="bankroll-display">$1,000</span>
+                <button id="btn-reload-chips" class="btn-icon-reload" title="Recargar $500 fichas">➕</button>
+            </div>
+
+            <!-- Botones de Utilidad -->
+            <button id="btn-open-party" class="btn-header" title="Jugar con amigos / retos">🍻 Modo Fiesta</button>
+            <button id="btn-open-rules" class="btn-header" title="Ver reglas del juego">📖 Reglas</button>
+            <button id="btn-open-settings" class="btn-header" title="Ajustes de la carrera">⚙️ Ajustes</button>
+            <button id="btn-toggle-sound" class="btn-header">🔊 Sonido</button>
+        </div>
+    </header>
+
+    <!-- Ticker del Relator del Hipódromo -->
+    <div class="commentary-bar">
+        <span class="commentary-badge">EN VIVO</span>
+        <span id="commentary-text" class="commentary-text">
+            ¡Bienvenido al Gran Premio de Naipes Españoles! Coloca tus apuestas y prepárate para la largada.
+        </span>
+    </div>
+
+    <!-- Layout Principal -->
+    <main class="main-layout">
+        <!-- Sección de Pista y Carril de Carreras -->
+        <section class="track-section">
+            <!-- La Pista de Carreras de Naipes (Canvas / DOM Grid) -->
+            <div class="track-container" id="race-track">
+                <!-- Se genera dinámicamente: Salida, Vallas, Carriles y Meta -->
+            </div>
+
+            <!-- Barra de Controles durante la carrera (oculta al inicio) -->
+            <div class="race-controls-bar hidden" id="race-controls-bar">
+                <div class="controls-left">
+                    <button id="btn-draw-card" class="btn-primary">
+                        <span>🃏</span> Sacar Carta (Paso a Paso)
+                    </button>
+                    <button id="btn-auto-race" class="btn-secondary">
+                        <span>▶️</span> Carrera Automática
+                    </button>
+                    <button id="btn-pause-race" class="btn-secondary btn-pause hidden">
+                        <span>⏸️</span> Pausar
+                    </button>
+                </div>
+
+                <div class="controls-right">
+                    <div class="speed-control">
+                        <span class="speed-label">Velocidad:</span>
+                        <div class="speed-buttons">
+                            <button class="btn-speed" data-speed="1600">1x</button>
+                            <button class="btn-speed active" data-speed="1000">2x</button>
+                            <button class="btn-speed" data-speed="500">3x</button>
+                            <button class="btn-speed" data-speed="250">Turbo</button>
+                        </div>
+                    </div>
+                    <button id="btn-restart-now" class="btn-header">🔄 Reiniciar</button>
+                </div>
+            </div>
+
+            <!-- Panel de Apuestas / Paddock (Visible antes de largar) -->
+            <div class="paddock-panel" id="paddock-panel">
+                <div class="paddock-header">
+                    <div>
+                        <h2>🏇 PADDOCK DE APUESTAS</h2>
+                        <span class="paddock-sub">Selecciona una ficha y haz clic en el caballo al que deseas apostar (Multiplicador 4.0x)</span>
+                    </div>
+                    <button id="btn-start-race" class="btn-primary">
+                        <span>🎺</span> ¡A LAS GATERAS! INICIAR CARRERA
+                    </button>
+                </div>
+
+                <!-- Selector de Fichas de Casino -->
+                <div class="chips-selector-bar">
+                    <span class="chips-label">Selecciona el valor de tu ficha:</span>
+                    <div class="chips-list">
+                        <button class="chip-btn chip-10" data-amount="10">$10</button>
+                        <button class="chip-btn chip-25" data-amount="25">$25</button>
+                        <button class="chip-btn chip-50 active" data-amount="50">$50</button>
+                        <button class="chip-btn chip-100" data-amount="100">$100</button>
+                        <button class="chip-btn chip-250" data-amount="250">$250</button>
+                        <button class="chip-btn chip-500" data-amount="500">$500</button>
+                    </div>
+                    <div class="bet-quick-actions">
+                        <button id="btn-all-in" class="btn-action-small btn-all-in">🔥 ALL-IN</button>
+                        <button id="btn-clear-bets" class="btn-action-small">Limpiar</button>
+                    </div>
+                </div>
+
+                <!-- Tarjetas de Apuesta de los 4 Caballos -->
+                <div class="paddock-grid">
+                    <!-- Jinete de Oros -->
+                    <div class="suit-bet-card" data-suit="oros" style="border-top: 4px solid var(--suit-oros);">
+                        <div class="suit-card-top">
+                            <span class="suit-card-title">🟡 JINETE DE OROS</span>
+                            <span class="suit-card-odds">Paga 4.0x</span>
+                        </div>
+                        <div class="suit-bet-box">
+                            <span class="bet-label">Tu Apuesta:</span>
+                            <span class="suit-bet-amount" data-suit="oros">$0</span>
+                        </div>
+                        <button class="btn-bet-suit" data-suit="oros">Apostar Ficha</button>
+                    </div>
+
+                    <!-- Jinete de Copas -->
+                    <div class="suit-bet-card" data-suit="copas" style="border-top: 4px solid var(--suit-copas);">
+                        <div class="suit-card-top">
+                            <span class="suit-card-title">🔴 JINETE DE COPAS</span>
+                            <span class="suit-card-odds">Paga 4.0x</span>
+                        </div>
+                        <div class="suit-bet-box">
+                            <span class="bet-label">Tu Apuesta:</span>
+                            <span class="suit-bet-amount" data-suit="copas">$0</span>
+                        </div>
+                        <button class="btn-bet-suit" data-suit="copas">Apostar Ficha</button>
+                    </div>
+
+                    <!-- Jinete de Espadas -->
+                    <div class="suit-bet-card" data-suit="espadas" style="border-top: 4px solid var(--suit-espadas);">
+                        <div class="suit-card-top">
+                            <span class="suit-card-title">🔵 JINETE DE ESPADAS</span>
+                            <span class="suit-card-odds">Paga 4.0x</span>
+                        </div>
+                        <div class="suit-bet-box">
+                            <span class="bet-label">Tu Apuesta:</span>
+                            <span class="suit-bet-amount" data-suit="espadas">$0</span>
+                        </div>
+                        <button class="btn-bet-suit" data-suit="espadas">Apostar Ficha</button>
+                    </div>
+
+                    <!-- Jinete de Bastos -->
+                    <div class="suit-bet-card" data-suit="bastos" style="border-top: 4px solid var(--suit-bastos);">
+                        <div class="suit-card-top">
+                            <span class="suit-card-title">🟢 JINETE DE BASTOS</span>
+                            <span class="suit-card-odds">Paga 4.0x</span>
+                        </div>
+                        <div class="suit-bet-box">
+                            <span class="bet-label">Tu Apuesta:</span>
+                            <span class="suit-bet-amount" data-suit="bastos">$0</span>
+                        </div>
+                        <button class="btn-bet-suit" data-suit="bastos">Apostar Ficha</button>
+                    </div>
+                </div>
+
+                <div class="paddock-footer">
+                    <div class="total-bet-summary">
+                        Total en Juego: <span id="total-bet-display" class="total-bet-val">$0</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Barra Lateral: El Mazo y Carta Activa -->
+        <aside class="side-panel">
+            <div class="deck-card-box" id="side-deck-section">
+                <div class="deck-box-title">Última Carta en Juego</div>
+                <div class="current-card-slot" id="current-card-slot">
+                    <div class="card-draw-placeholder">Las cartas extraídas aparecerán aquí</div>
+                </div>
+            </div>
+
+            <!-- Contador de Cartas Restantes por Palo -->
+            <div class="stats-card-box">
+                <div class="deck-box-title">Mazo: <span id="deck-count">40 cartas</span></div>
+                <div class="stats-grid">
+                    <div class="stat-item" style="border-left: 3px solid var(--suit-oros);">
+                        <span>🟡 Oros:</span>
+                        <span class="stat-count" id="count-stat-oros">0</span>
+                    </div>
+                    <div class="stat-item" style="border-left: 3px solid var(--suit-copas);">
+                        <span>🔴 Copas:</span>
+                        <span class="stat-count" id="count-stat-copas">0</span>
+                    </div>
+                    <div class="stat-item" style="border-left: 3px solid var(--suit-espadas);">
+                        <span>🔵 Espadas:</span>
+                        <span class="stat-count" id="count-stat-espadas">0</span>
+                    </div>
+                    <div class="stat-item" style="border-left: 3px solid var(--suit-bastos);">
+                        <span>🟢 Bastos:</span>
+                        <span class="stat-count" id="count-stat-bastos">0</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Modal de Victoria y Podio -->
+    <div id="modal-victory" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-body" id="victory-details">
+                <!-- Rellenado dinámicamente con podio y premios -->
+            </div>
+            <div class="modal-footer">
+                <button id="btn-new-race" class="btn-primary">🏇 Correr Nueva Carrera</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Reglas del Juego -->
+    <div id="modal-rules" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>📖 Reglas: Carrera de Jinetes (Baraja Española)</h3>
+                <button class="btn-close-modal btn-close-rules">✖</button>
+            </div>
+            <div class="modal-body rules-content">
+                <h4>🎯 ¿En qué consiste el juego?</h4>
+                <p>
+                    La <strong>Carrera de Jinetes</strong> (o Carrera de Caballos) es uno de los juegos más emocionantes y divertidos que se juegan tradicionalmente con baraja española en reuniones de amigos y celebraciones.
+                </p>
+                <h4>🏁 Preparación de la Mesa:</h4>
+                <ul>
+                    <li><strong>Los 4 Jinetes:</strong> Se colocan los 4 Caballos (11s) de la baraja en la línea de salida (uno por cada palo: <em>Oros, Copas, Espadas y Bastos</em>).</li>
+                    <li><strong>Las Vallas (Obstáculos):</strong> Se coloca una fila de 7 cartas boca abajo a lo largo del circuito. Cada carta representa un obstáculo o escalón.</li>
+                </ul>
+                <h4>🐎 La Dinámica de Avance:</h4>
+                <p>
+                    Se extraen cartas una a una del mazo. Según el <strong>palo</strong> de la carta que salga (Oro, Copa, Espada o Basto), el caballo de ese palo <strong>avanza una casilla</strong> hacia adelante.
+                </p>
+                <h4>💥 ¡La Regla de las Vallas (Giro Dramático)!:</h4>
+                <p>
+                    A medida que los caballos avanzan, cuando <strong>todos los caballos</strong> logran superar la altura de una valla, la carta boca abajo de esa valla <strong>se da vuelta</strong>.
+                </p>
+                <p>
+                    ⚠️ <strong>Penalización:</strong> ¡El caballo del mismo palo de la carta revelada <strong>tropezó con la valla y retrocede 1 casilla</strong>! Esto provoca remontadas épicas y castigos inesperados para los líderes.
+                </p>
+                <h4>🏆 Ganador:</h4>
+                <p>
+                    Gana el primer caballo que cruce por completo la línea de meta. Si acertaste tu apuesta, multiplicas tus fichas por 4.0x.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary btn-close-rules">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Ajustes -->
+    <div id="modal-settings" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>⚙️ Ajustes de la Carrera</h3>
+                <button class="btn-close-modal btn-close-settings">✖</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="select-hurdles-count">Longitud de la Pista (Número de Vallas):</label>
+                    <select id="select-hurdles-count">
+                        <option value="5">5 Vallas (Carrera Rápida y Explosiva)</option>
+                        <option value="7" selected>7 Vallas (Clásica y Equilibrada)</option>
+                        <option value="9">9 Vallas (Épica de Gran Fondo)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="select-hurdle-rule">Regla de Activación de Vallas:</label>
+                    <select id="select-hurdle-rule">
+                        <option value="all_cross" selected>Cuando todos los caballos superan la valla (Regla Tradicional)</option>
+                        <option value="first_reaches">Cuando el primer caballo pisa la valla (Regla Caótica)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary btn-close-settings">Guardar y Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Modo Fiesta / Amigos -->
+    <div id="modal-party" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>🍻 Modo Fiesta / Amigos</h3>
+                <button class="btn-close-modal btn-close-party">✖</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 12px;">
+                    Agrega a tus amigos, asígnales un caballo y escribe un reto, apuesta o castigo (ej: "Paga una gaseosa", "2 sorbos", "10 flexiones").
+                </p>
+                <div id="party-players-list">
+                    <!-- Filas dinámicas -->
+                </div>
+                <button id="btn-add-party-player" class="btn-secondary" style="margin-top: 10px; width: 100%;">
+                    ➕ Añadir Otro Amigo
+                </button>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary btn-close-party">Listo para Jugar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts del Juego -->
+    <script src="audio.js"></script>
+    <script src="deck.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
