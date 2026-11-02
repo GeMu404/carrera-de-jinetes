@@ -4,13 +4,14 @@
 class SoundEffects {
     constructor() {
         this.ctx = null;
-        this.muted = false;
+        this.muted = localStorage.getItem('jinetes_muted') === '1';
         this.initialized = false;
     }
 
     init() {
         if (!this.ctx) {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) { this.muted = true; return; }
             this.ctx = new AudioContext();
             this.initialized = true;
         }
@@ -21,6 +22,7 @@ class SoundEffects {
 
     toggleMute() {
         this.muted = !this.muted;
+        localStorage.setItem('jinetes_muted', this.muted ? '1' : '0');
         return this.muted;
     }
 
@@ -28,6 +30,7 @@ class SoundEffects {
     playCardFlip() {
         if (this.muted) return;
         this.init();
+        if (!this.ctx) return;
 
         const now = this.ctx.currentTime;
         const bufferSize = this.ctx.sampleRate * 0.08;
@@ -61,6 +64,7 @@ class SoundEffects {
     playGallop() {
         if (this.muted) return;
         this.init();
+        if (!this.ctx) return;
 
         const now = this.ctx.currentTime;
         
@@ -97,6 +101,7 @@ class SoundEffects {
     playBugleCall() {
         if (this.muted) return;
         this.init();
+        if (!this.ctx) return;
 
         const now = this.ctx.currentTime;
         // Notas tradicionales de corneta de largada (Sol3, Do4, Mi4, Sol4)
@@ -143,6 +148,7 @@ class SoundEffects {
     playHurdlePenalty() {
         if (this.muted) return;
         this.init();
+        if (!this.ctx) return;
 
         const now = this.ctx.currentTime;
         
@@ -192,6 +198,7 @@ class SoundEffects {
     playChip() {
         if (this.muted) return;
         this.init();
+        if (!this.ctx) return;
 
         const now = this.ctx.currentTime;
         const osc = this.ctx.createOscillator();
@@ -215,6 +222,7 @@ class SoundEffects {
     playVictory() {
         if (this.muted) return;
         this.init();
+        if (!this.ctx) return;
 
         const now = this.ctx.currentTime;
         const chords = [

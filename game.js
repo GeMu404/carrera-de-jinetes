@@ -1,4 +1,16 @@
 // Motor Principal del Juego: Carrera de Jinetes (Baraja Española)
+// Compartido por la version clasica (/) y la version waynyan (/waynyan/).
+
+const IS_WAYNYAN = document.documentElement.dataset.theme === 'waynyan';
+const EMOJI_RE = /[\p{Extended_Pictographic}\u{1F1E6}-\u{1F1FF}\uFE0F\u20E3]\s?/gu;
+// En waynyan no se usan emoji: se quitan de cualquier texto generado
+const ui = (str) => IS_WAYNYAN ? str.replace(EMOJI_RE, '').replace(/\s{2,}/g, ' ') : str;
+const esc = (v) => String(v).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const ICON = {
+    trophy: '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="miter" stroke-linecap="square"><path d="M7 3h10v6a5 5 0 0 1-10 0z"/><path d="M7 5H3v3a4 4 0 0 0 4 4M17 5h4v3a4 4 0 0 1-4 4M12 14v4M8 21h8M9 18h6"/></svg>',
+    flag: '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"><path d="M5 21V3h13l-3 4 3 4H5"/></svg>',
+    rank: (n) => `<svg class="ico ico-rank" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 2h10l5 5v10l-5 5H7l-5-5V7z"/><text x="12" y="16.5" text-anchor="middle" fill="currentColor" stroke="none" font-size="11" font-family="inherit">${n}</text></svg>`
+};
 
 class RaceGame {
     constructor() {
@@ -22,7 +34,8 @@ class RaceGame {
         this.winner = null;
 
         // Sistema de Apuestas
-        this.bankroll = parseInt(localStorage.getItem('jinetes_bankroll') || '1000', 10);
+        this.bankroll = parseInt(localStorage.getItem('jinetes_bankroll'), 10);
+        if (!Number.isFinite(this.bankroll) || this.bankroll < 0) this.bankroll = 1000;
         this.bets = { oros: 0, copas: 0, espadas: 0, bastos: 0 };
         this.selectedChip = 50;
 
@@ -136,49 +149,82 @@ class RaceGame {
         });
 
         document.getElementById('btn-restart-now').addEventListener('click', () => {
-            if (confirm('¿Deseas reiniciar la carrera actual? Se perderán las apuestas en curso.')) {
-                this.pauseRace();
-                this.resetToBetting();
+            // Confirmacion en el mismo boton (sin dialogos nativos): 2 toques en 3 s
+            const b = document.getElementById('btn-restart-now');
+            if (!b.classList.contains('armed')) {
+                b.classList.add('armed');
+                clearTimeout(this._armT);
+                this._armT = setTimeout(() => b.classList.remove('armed'), 3000);
+                return;
             }
+            b.classList.remove('armed');
+            this.pauseRace();
+            this.resetToBetting(true);
         });
 
         // Modales - Apertura y Cierre seguro
-        document.getElementById('btn-open-rules').addEventListener('click', () => {
-            this.modalRules.classList.remove('hidden');
-        });
+        const rulesBtn = document.getElementById('btn-open-rules');
+        if (rulesBtn) rulesBtn.addEventListener('click', () => this.openPanel(this.modalRules));
         document.querySelectorAll('.btn-close-rules').forEach(btn => {
-            btn.addEventListener('click', () => this.modalRules.classList.add('hidden'));
+            btn.addEventListener('click', () => this.closePanel(this.modalRules));
         });
 
         document.getElementById('btn-open-settings').addEventListener('click', () => {
-            this.modalSettings.classList.remove('hidden');
+            if (this.phase !== 'betting') return; // no cambiar la pista a mitad de carrera
+            this.openPanel(this.modalSettings);
         });
         document.querySelectorAll('.btn-close-settings').forEach(btn => {
-            btn.addEventListener('click', () => this.modalSettings.classList.add('hidden'));
+            btn.addEventListener('click', () => this.closePanel(this.modalSettings));
         });
 
         document.getElementById('btn-open-party').addEventListener('click', () => {
             this.renderPartyPlayersUI();
-            this.modalParty.classList.remove('hidden');
+            this.openPanel(this.modalParty);
         });
-        document.querySelectorAll('.btn-close-party').forEach(btn => {
-            btn.addEventListener('click', () => {
-                this.gameMode = this.partyPlayers.length > 0 ? 'party' : 'chips';
-                this.modalParty.classList.add('hidden');
-                this.updatePartyBadge();
-            });
+        const closeParty = () => {
+            this.gameMode = this.partyPlayers.length > 0 ? 'party' : 'chips';
+            this.closePanel(this.modalParty);
+            this.updatePartyBadge();
+        };
+        document.querySelectorAll('.btn-close-party').forEach(btn => btn.addEventListener('click', closeParty));
+        const partyOff = document.getElementById('btn-party-off');
+        if (partyOff) partyOff.addEventListener('click', () => {
+            this.gameMode = 'chips';
+            this.closePanel(this.modalParty);
+            this.updatePartyBadge();
         });
+
+        // Teclado: Espacio/Enter = sacar carta; Escape = cerrar panel
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                [this.modalRules, this.modalSettings].forEach(m => m && this.closePanel(m));
+                if (this.modalParty && !this.modalParty.classList.contains('hidden')) closeParty();
+                return;
+            }
+            const tag = (e.target.tagName || '').toLowerCase();
+            if ((e.key === ' ' || e.key === 'Enter') && !['input', 'select', 'button', 'textarea', 'a'].includes(tag)) {
+                if ((this.phase === 'racing' && !this.autoTimer) || this.phase === 'paused') {
+                    e.preventDefault();
+                    this.drawNextCard();
+                }
+            }
+        });
+        // Clasico: clic fuera de la tarjeta cierra el modal informativo
+        [this.modalRules, this.modalSettings].forEach(m => m && m.addEventListener('click', (e) => {
+            if (e.target === m) this.closePanel(m);
+        }));
 
         // Alternar Mute
         const btnMute = document.getElementById('btn-toggle-sound');
         btnMute.addEventListener('click', () => {
             const isMuted = window.soundEffects.toggleMute();
-            btnMute.innerHTML = isMuted ? '🔇 Silencio' : '🔊 Sonido';
-            btnMute.classList.toggle('muted', isMuted);
+            this.syncMuteUI(btnMute, isMuted);
         });
+        this.syncMuteUI(btnMute, window.soundEffects.muted);
 
         // Configuración de vallas y reglas
         document.getElementById('select-hurdles-count').addEventListener('change', (e) => {
+            if (this.phase !== 'betting') return;
             this.totalSteps = parseInt(e.target.value, 10);
             this.setupTrackUI();
         });
@@ -199,6 +245,11 @@ class RaceGame {
 
         // Recargar fichas si está en bancarrota
         document.getElementById('btn-reload-chips').addEventListener('click', () => {
+            const total = Object.values(this.bets).reduce((a, b) => a + b, 0);
+            if (this.phase !== 'betting' || this.bankroll >= 10 || total > 0) {
+                this.setCommentary('La recarga de cortesía es solo para quien quedó sin fichas.');
+                return;
+            }
             this.bankroll += 500;
             this.saveBankroll();
             this.updateBankrollUI();
@@ -206,12 +257,31 @@ class RaceGame {
         });
     }
 
+    syncMuteUI(btn, isMuted) {
+        if (!IS_WAYNYAN) btn.textContent = isMuted ? '🔇 Silencio' : '🔊 Sonido';
+        btn.classList.toggle('muted', isMuted);
+        btn.setAttribute('aria-pressed', String(isMuted));
+    }
+
+    // Paneles: en clasico son modales; en waynyan reemplazan el contenido en el lugar (CSS)
+    openPanel(el) {
+        if (!el) return;
+        el.classList.remove('hidden');
+        document.body.classList.add('has-panel');
+    }
+
+    closePanel(el) {
+        if (!el) return;
+        el.classList.add('hidden');
+        if (!document.querySelector('.modal-overlay:not(.hidden)')) document.body.classList.remove('has-panel');
+    }
+
     updatePartyBadge() {
         const badge = document.getElementById('party-mode-indicator');
         if (badge) {
             if (this.gameMode === 'party' && this.partyPlayers.length > 0) {
                 badge.classList.remove('hidden');
-                badge.textContent = `🍻 Modo Fiesta Activo (${this.partyPlayers.length} jugadores)`;
+                badge.textContent = IS_WAYNYAN ? `${this.partyPlayers.length}` : `🍻 Modo Fiesta Activo (${this.partyPlayers.length} jugadores)`;
             } else {
                 badge.classList.add('hidden');
             }
@@ -276,7 +346,7 @@ class RaceGame {
             headerHtml += `<div class="step-cell step-num-label">Valla ${i}</div>`;
         }
         headerHtml += `<div class="step-cell step-finish-label">🏁 META</div>`;
-        stepsHeader.innerHTML = headerHtml;
+        stepsHeader.innerHTML = ui(headerHtml);
         this.trackEl.appendChild(stepsHeader);
 
         // Fila de Cartas de Valla / Obstáculos (Columna 1: Título, Columna 2: Vacía, Columnas 3..N+2: Cartas, Columna N+3: Disco)
@@ -296,7 +366,7 @@ class RaceGame {
             </div>`;
         }
         hurdlesHtml += `<div class="hurdle-cell hurdle-finish-banner"><span>🏆 DISCO</span></div>`;
-        hurdlesRow.innerHTML = hurdlesHtml;
+        hurdlesRow.innerHTML = ui(hurdlesHtml);
         this.trackEl.appendChild(hurdlesRow);
 
         // 4 Carriles para los 4 Palos
@@ -335,7 +405,7 @@ class RaceGame {
             // Celda de Meta
             laneHtml += `<div class="track-cell cell-finish" data-step="${this.totalSteps + 1}">
                 <div class="finish-line-pattern"></div>
-                <span class="cell-marker meta-marker">🏆</span>
+                <span class="cell-marker meta-marker">${IS_WAYNYAN ? ICON.flag : '🏆'}</span>
             </div>`;
 
             laneHtml += `</div>`;
@@ -367,11 +437,8 @@ class RaceGame {
     // Comienza la carrera (reparto de cartas, vallas y fanfarria)
     startRace() {
         const totalBets = this.bets.oros + this.bets.copas + this.bets.espadas + this.bets.bastos;
-        if (this.gameMode === 'chips' && totalBets === 0 && this.bankroll > 0) {
-            if (!confirm('No has colocado ninguna apuesta con fichas. ¿Quieres correr la carrera de exhibición de todas formas?')) {
-                return;
-            }
-        }
+        // Sin apuestas = carrera de exhibicion (sin dialogo bloqueante)
+        if (this.phase !== 'betting') return;
 
         this.phase = 'racing';
         window.soundEffects.playBugleCall();
@@ -420,7 +487,11 @@ class RaceGame {
         // Habilitar botones
         this.btnDraw.disabled = false;
         this.btnAuto.disabled = false;
-        this.btnPause.disabled = true;
+        this.btnPause.disabled = false;
+        document.getElementById('btn-open-settings').disabled = true;
+        if (totalBets === 0 && this.gameMode === 'chips') {
+            this.setCommentary('Carrera de exhibición: sin apuestas en juego. ¡Se abren las gateras!');
+        }
     }
 
     // Roba y procesa la siguiente carta de la carrera
@@ -462,13 +533,14 @@ class RaceGame {
         // Relato de la jugada
         this.generateStepCommentary(card, horse);
 
-        // Verificar si se activan vallas (obstáculos)
-        this.checkHurdles();
-
-        // Verificar si alguien cruzó la meta
+        // Si cruzó la meta gana de inmediato (las vallas ya no le afectan)
         if (horse.pos > this.totalSteps) {
             this.handleVictory(card.suit);
+            return;
         }
+
+        // Verificar si se activan vallas (obstáculos)
+        this.checkHurdles();
     }
 
     renderDrawnCard(card) {
@@ -477,7 +549,7 @@ class RaceGame {
                 ${renderCardHtml(card, false)}
             </div>
             <div class="drawn-card-label" style="color: ${SUITS[card.suit].color}">
-                ¡Salió ${card.name}!
+                ${card.name}
             </div>
         `;
     }
@@ -490,7 +562,8 @@ class RaceGame {
         if (container) {
             container.classList.add(direction === 'forward' ? 'horse-advancing' : 'horse-retreating');
             setTimeout(() => {
-                this.renderHorseAt(suitId, pos);
+                // usar la posición actual del estado (evita saltos con cartas rápidas/turbo)
+                this.renderHorseAt(suitId, this.horses[suitId].pos);
                 const newContainer = laneCells.querySelector('.horse-runner-container');
                 if (newContainer && direction === 'penalty') {
                     newContainer.classList.add('horse-penalized-flash');
@@ -535,8 +608,11 @@ class RaceGame {
         // Animación de flip en la carta de la valla
         const hurdleWrapper = document.getElementById(`hurdle-card-${idx + 1}`);
         if (hurdleWrapper) {
+            // Volteo: gira hasta 90°, cambia a la cara y vuelve (antes quedaba espejada a 180°)
+            hurdleWrapper.classList.remove('hurdle-trigger-flip');
+            void hurdleWrapper.offsetWidth;
             hurdleWrapper.classList.add('hurdle-trigger-flip');
-            hurdleWrapper.innerHTML = renderCardHtml(penaltyCard, false, true);
+            setTimeout(() => { hurdleWrapper.innerHTML = renderCardHtml(penaltyCard, false, true); }, 300);
         }
 
         // Sonido de tropiezo / penalización
@@ -548,13 +624,18 @@ class RaceGame {
         this.animateHorseMove(penalizedSuit, horse.pos, 'penalty');
 
         // Mostrar cartel de penalización
+        // Aviso en el lugar (la etiqueta de la valla), sin popup flotante encima de la pista
         const slotEl = document.getElementById(`hurdle-slot-${idx + 1}`);
         if (slotEl) {
-            const popup = document.createElement('div');
-            popup.className = 'hurdle-penalty-popup';
-            popup.innerHTML = `⚠️ ¡${SUITS[penalizedSuit].name.toUpperCase()} TROPIEZA! (-1)`;
-            slotEl.appendChild(popup);
-            setTimeout(() => popup.remove(), 2500);
+            slotEl.classList.add('hurdle-hit', `hit-${penalizedSuit}`);
+            const lbl = slotEl.querySelector('.hurdle-label');
+            if (lbl) lbl.textContent = `-1 ${SUITS[penalizedSuit].name}`;
+        }
+        const lane = document.getElementById(`lane-${penalizedSuit}`);
+        if (lane) {
+            lane.classList.remove('lane-hit');
+            void lane.offsetWidth;
+            lane.classList.add('lane-hit');
         }
 
         this.setCommentary(
@@ -577,15 +658,17 @@ class RaceGame {
         const multiplier = 4.0;
         const prize = Math.round(userBet * multiplier);
 
-        if (userBet > 0) {
-            this.bankroll += prize;
-            this.saveBankroll();
-            this.updateBankrollUI();
-        }
+        if (userBet > 0) this.bankroll += prize;
+        // Las apuestas quedan consumidas (antes se devolvían al volver al paddock)
+        this.bets = { oros: 0, copas: 0, espadas: 0, bastos: 0 };
+        this.saveBankroll();
+        this.updateBankrollUI();
+        this.btnDraw.disabled = true;
+        this.btnAuto.disabled = true;
 
         // Clasificación final de los 4 caballos
         const ranking = Object.values(this.horses)
-            .sort((a, b) => b.pos - a.pos);
+            .sort((a, b) => (b.suit === winningSuit) - (a.suit === winningSuit) || b.pos - a.pos);
 
         // Renderizar modal de victoria
         this.renderVictoryModal(winningSuit, prize, totalBet, ranking);
@@ -626,12 +709,12 @@ class RaceGame {
             <div class="party-results-box">
                 <h4>🍻 Resultados de la Ronda de Fiesta:</h4>
                 <div class="party-winners">
-                    <strong>🏆 Ganadores:</strong> ${winners.length > 0 ? winners.map(w => `${w.name}`).join(', ') : '¡Nadie apostó por este caballo!'}
+                    <strong>🏆 Ganadores:</strong> ${winners.length > 0 ? winners.map(w => esc(w.name)).join(', ') : '¡Nadie apostó por este caballo!'}
                 </div>
                 <div class="party-losers">
                     <strong>🎯 Retos para los demás:</strong>
                     <ul>
-                        ${losers.map(l => `<li><strong>${l.name}</strong> (${SUITS[l.suit].name}): Cumple reto -> <em>${l.stake}</em></li>`).join('')}
+                        ${losers.map(l => `<li><strong>${esc(l.name)}</strong> (${SUITS[l.suit].name}): <em>${esc(l.stake)}</em></li>`).join('')}
                     </ul>
                 </div>
             </div>`;
@@ -641,20 +724,20 @@ class RaceGame {
         let podiumHtml = `<div class="podium-grid">`;
         ranking.forEach((h, index) => {
             const hSuit = SUITS[h.suit];
-            const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '4º';
+            const medal = IS_WAYNYAN ? ICON.rank(index + 1) : (index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '4º');
             podiumHtml += `
             <div class="podium-item rank-${index + 1}" style="border-top-color: ${hSuit.color}">
                 <div class="podium-medal">${medal}</div>
                 <div class="podium-suit-icon">${getSuitSvg(h.suit, 28)}</div>
                 <div class="podium-name">${hSuit.name}</div>
-                <div class="podium-steps">${h.pos > this.totalSteps ? '🏆 Ganador' : `Casilla ${h.pos}`}</div>
+                <div class="podium-steps">${h.pos > this.totalSteps ? (IS_WAYNYAN ? ICON.flag : '🏆 Ganador') : (IS_WAYNYAN ? `${h.pos}/${this.totalSteps + 1}` : `Casilla ${h.pos}`)}</div>
             </div>`;
         });
         podiumHtml += `</div>`;
 
-        modalContent.innerHTML = `
+        modalContent.innerHTML = ui(`
             <div class="winner-hero" style="background: linear-gradient(135deg, ${suit.darkColor}, ${suit.color})">
-                <div class="winner-trophy">🏆</div>
+                <div class="winner-trophy">${IS_WAYNYAN ? ICON.trophy : '🏆'}</div>
                 <h2 class="winner-title">¡JINETE DE ${suit.name.toUpperCase()} ES EL CAMPEÓN!</h2>
                 <p class="winner-subtitle">${suit.horseName}</p>
                 <div class="winner-icon">${getSuitSvg(winningSuit, 70)}</div>
@@ -665,23 +748,30 @@ class RaceGame {
                 <h3>Posiciones Finales</h3>
                 ${podiumHtml}
             </div>
-        `;
+        `);
 
-        this.modalVictory.classList.remove('hidden');
+        this.openPanel(this.modalVictory);
     }
 
     closeVictoryModal() {
-        this.modalVictory.classList.add('hidden');
+        this.closePanel(this.modalVictory);
         this.stopConfetti();
     }
 
-    resetToBetting() {
+    resetToBetting(refund = false) {
         this.phase = 'betting';
-        this.clearBets();
+        if (refund) this.clearBets();
+        this.btnDraw.disabled = false;
+        this.btnAuto.disabled = false;
+        document.getElementById('btn-open-settings').disabled = false;
         document.getElementById('paddock-panel').classList.remove('hidden');
         document.getElementById('race-controls-bar').classList.add('hidden');
         document.getElementById('side-deck-section').classList.add('hidden');
-        this.cardDrawSlotEl.innerHTML = `<div class="card-draw-placeholder">Las cartas extraídas aparecerán aquí</div>`;
+        this.cardDrawSlotEl.innerHTML = IS_WAYNYAN ? renderCardHtml(null, true) : `<div class="card-draw-placeholder">Las cartas extraídas aparecerán aquí</div>`;
+        this.deck.reset();
+        this.suitCounts = { oros: 0, copas: 0, espadas: 0, bastos: 0 };
+        this.updateDeckCountUI();
+        this.updateSuitStats();
         this.setupTrackUI();
         this.setCommentary('🏇 Prepara tus apuestas en el Paddock y presiona "¡A LAS GATERAS!" para comenzar.');
     }
@@ -713,11 +803,11 @@ class RaceGame {
         }
         this.btnAuto.classList.remove('hidden');
         this.btnPause.classList.add('hidden');
-        this.btnDraw.disabled = false;
+        this.btnDraw.disabled = this.phase === 'finished';
     }
 
     updateDeckCountUI() {
-        this.deckCountEl.textContent = `${this.deck.count} cartas`;
+        this.deckCountEl.textContent = IS_WAYNYAN ? `${this.deck.count}` : `${this.deck.count} cartas`;
     }
 
     updateSuitStats() {
@@ -731,7 +821,7 @@ class RaceGame {
     }
 
     setCommentary(text) {
-        this.commentaryEl.textContent = text;
+        this.commentaryEl.textContent = ui(text);
         this.commentaryEl.classList.remove('commentary-pulse');
         void this.commentaryEl.offsetWidth; // trigger reflow
         this.commentaryEl.classList.add('commentary-pulse');
@@ -771,17 +861,17 @@ class RaceGame {
         this.partyPlayers.forEach((player, idx) => {
             const row = document.createElement('div');
             row.className = 'party-player-row';
-            row.innerHTML = `
-                <input type="text" class="party-name-input" value="${player.name}" data-idx="${idx}" placeholder="Nombre" />
+            row.innerHTML = ui(`
+                <input type="text" class="party-name-input" value="${esc(player.name)}" data-idx="${idx}" ${IS_WAYNYAN ? '' : 'placeholder="Nombre"'} aria-label="Nombre" />
                 <select class="party-suit-select" data-idx="${idx}">
                     <option value="oros" ${player.suit === 'oros' ? 'selected' : ''}>🟡 Oros</option>
                     <option value="copas" ${player.suit === 'copas' ? 'selected' : ''}>🔴 Copas</option>
                     <option value="espadas" ${player.suit === 'espadas' ? 'selected' : ''}>🔵 Espadas</option>
                     <option value="bastos" ${player.suit === 'bastos' ? 'selected' : ''}>🟢 Bastos</option>
                 </select>
-                <input type="text" class="party-stake-input" value="${player.stake}" data-idx="${idx}" placeholder="Reto o castigo" />
-                <button class="btn-remove-player" data-idx="${idx}">❌</button>
-            `;
+                <input type="text" class="party-stake-input" value="${esc(player.stake)}" data-idx="${idx}" ${IS_WAYNYAN ? '' : 'placeholder="Reto o castigo"'} aria-label="Reto" />
+                <button class="btn-remove-player" data-idx="${idx}" aria-label="Quitar">${IS_WAYNYAN ? '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"><path d="M6 6l12 12M18 6L6 18"/></svg>' : '❌'}</button>
+            `);
             listEl.appendChild(row);
         });
 
@@ -803,7 +893,7 @@ class RaceGame {
         });
         listEl.querySelectorAll('.btn-remove-player').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const idx = parseInt(e.target.dataset.idx, 10);
+                const idx = parseInt(e.currentTarget.dataset.idx, 10);
                 this.partyPlayers.splice(idx, 1);
                 this.renderPartyPlayersUI();
             });
@@ -814,17 +904,28 @@ class RaceGame {
     startConfetti() {
         if (!this.confettiCanvas) return;
         const canvas = this.confettiCanvas;
+        this.stopConfetti();
         const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        const W = window.innerWidth, H = window.innerHeight;
+        canvas.width = W * dpr;
+        canvas.height = H * dpr;
+        canvas.style.width = W + 'px';
+        canvas.style.height = H + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        const t0 = performance.now();
+        const styleAccent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
 
         const particles = [];
-        const colors = ['#f59e0b', '#ef4444', '#3b82f6', '#10b981', '#ec4899', '#8b5cf6'];
+        const colors = IS_WAYNYAN
+            ? [styleAccent || '#00e5ff', '#ffffff', SUITS.oros.color, SUITS.copas.color, SUITS.espadas.color, SUITS.bastos.color]
+            : ['#f59e0b', '#ef4444', '#3b82f6', '#10b981', '#ec4899', '#8b5cf6'];
+        const canvasW = W, canvasH = H;
 
         for (let i = 0; i < 140; i++) {
             particles.push({
-                x: Math.random() * canvas.width,
-                y: Math.random() * -canvas.height,
+                x: Math.random() * canvasW,
+                y: Math.random() * -canvasH,
                 w: Math.random() * 12 + 6,
                 h: Math.random() * 8 + 4,
                 color: colors[Math.floor(Math.random() * colors.length)],
@@ -835,30 +936,34 @@ class RaceGame {
             });
         }
 
-        const render = () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const render = (now = t0) => {
+            const elapsed = now - t0;
+            ctx.clearRect(0, 0, canvasW, canvasH);
+            ctx.globalAlpha = elapsed > 5000 ? Math.max(0, 1 - (elapsed - 5000) / 1500) : 1;
+            if (elapsed > 6500) { this.stopConfetti(); return; }
             particles.forEach(p => {
                 p.x += p.vx;
                 p.y += p.vy;
                 p.rotation += p.vRot;
 
-                if (p.y > canvas.height) {
+                if (p.y > canvasH) {
                     p.y = -20;
-                    p.x = Math.random() * canvas.width;
+                    p.x = Math.random() * canvasW;
                 }
 
                 ctx.save();
                 ctx.translate(p.x, p.y);
                 ctx.rotate((p.rotation * Math.PI) / 180);
                 ctx.fillStyle = p.color;
-                ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+                if (IS_WAYNYAN) ctx.fillRect(-4, -4, 8, 8); // pixel cuadrado
+                else ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
                 ctx.restore();
             });
 
             this.confettiAnimId = requestAnimationFrame(render);
         };
 
-        render();
+        this.confettiAnimId = requestAnimationFrame(render);
     }
 
     stopConfetti() {
@@ -868,6 +973,7 @@ class RaceGame {
         }
         if (this.confettiCanvas) {
             const ctx = this.confettiCanvas.getContext('2d');
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
             ctx.clearRect(0, 0, this.confettiCanvas.width, this.confettiCanvas.height);
         }
     }
