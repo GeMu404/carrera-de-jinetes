@@ -362,7 +362,7 @@ class RaceGame {
                 <div class="hurdle-card-wrapper" id="hurdle-card-${i}">
                     ${renderCardHtml(null, true, true)}
                 </div>
-                <span class="hurdle-label">Valla ${i}</span>
+                <span class="hurdle-label">${IS_WAYNYAN ? i : `Valla ${i}`}</span>
             </div>`;
         }
         hurdlesHtml += `<div class="hurdle-cell hurdle-finish-banner"><span>🏆 DISCO</span></div>`;

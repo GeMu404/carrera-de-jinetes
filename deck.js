@@ -233,7 +233,7 @@ function cardFrame(suit) {
 }
 
 function cornerIndex(card, suit) {
-    const t = `<text x="27" y="42" text-anchor="middle" class="card-idx" fill="${suit.ink}">${card.num}</text>`;
+    const t = `<text x="28" y="43" text-anchor="middle" class="card-idx" fill="${suit.ink}">${card.num}</text>`;
     return t + `<g transform="rotate(180 100 150)">${t}</g>`;
 }
 

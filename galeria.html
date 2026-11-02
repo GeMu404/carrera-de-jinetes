@@ -1,0 +1,8 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" href="style.css">
+<style>body{padding:16px}.g{display:flex;flex-wrap:wrap;gap:12px}.big .spanish-card{--card-width:180px;}</style></head>
+<body ><div class="g" id="g"></div><h3 style="color:#fff">x2</h3><div class="g big" id="b"></div>
+<script src="./deck.js"></script><script>
+const d=new SpanishDeck();let h='';for(const c of d.cards)h+=renderCardHtml(c);h+=renderCardHtml(null,true);
+document.getElementById('g').innerHTML=h;
+document.getElementById('b').innerHTML=['oros_1','copas_7','espadas_10','bastos_11','oros_12','espadas_4'].map(i=>renderCardHtml(d.cards.find(c=>c.id==i))).join('')+renderCardHtml(null,true);
+</script></body></html>

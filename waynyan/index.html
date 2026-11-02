@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="waynyan">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#05070d">
+    <title>Carrera de Jinetes</title>
+    <script>
+        // Acento heredado del home de gemu404.cl (mismo origen => mismo localStorage).
+        (function () {
+            var KEYS = ['accent', 'gemu-accent', 'gemu404-accent', 'accentColor', 'acento', 'color-acento'];
+            function pick() {
+                for (var i = 0; i < KEYS.length; i++) {
+                    var v = null;
+                    try { v = localStorage.getItem(KEYS[i]); } catch (e) {}
+                    if (!v) continue;
+                    v = v.trim().replace(/^"|"$/g, '');
+                    if (/^[0-9a-f]{3,8}$/i.test(v)) v = '#' + v;
+                    if (/^#[0-9a-f]{3,8}$|^(rgb|hsl)a?\(/i.test(v)) return v;
+                }
+                return null;
+            }
+            function apply() {
+                var a = pick();
+                if (a) document.documentElement.style.setProperty('--accent', a);
+            }
+            apply();
+            window.addEventListener('storage', apply);
+        })();
+    </script>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="icon.svg" type="image/svg+xml">
+    <link rel="preload" href="fonts/PressStart2P-Regular.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="waynyan.css">
+</head>
+<body>
+    <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+        <defs>
+            <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 9v12h5v-6h4v6h5V9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"/></symbol>
+            <symbol id="i-coin" viewBox="0 0 24 24"><path d="M8 3h8l5 5v8l-5 5H8l-5-5V8z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v10M9 9.5h4.5a1.5 1.5 0 0 1 0 3h-3a1.5 1.5 0 0 0 0 3H15" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+            <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"/></symbol>
+            <symbol id="i-party" viewBox="0 0 24 24"><circle cx="8" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="17" cy="9" r="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2 20v-2a5 5 0 0 1 10 0v2M14 20v-1.5a4 4 0 0 1 8 0V20" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+            <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"/><path d="M14 4v4h4V4zM8 10v4h4v-4zM16 16v4h4v-4z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+            <symbol id="i-sound" viewBox="0 0 24 24"><path d="M3 9h4l5-5v16l-5-5H3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="miter"/><path d="M16 8a5 5 0 0 1 0 8M19 5a9 9 0 0 1 0 14" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+            <symbol id="i-mute" viewBox="0 0 24 24"><path d="M3 9h4l5-5v16l-5-5H3z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M16 9l6 6M22 9l-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"/></symbol>
+            <symbol id="i-card" viewBox="0 0 24 24"><path d="M6 2h12v20H6z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7l3 5-3 5-3-5z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+            <symbol id="i-play" viewBox="0 0 24 24"><path d="M6 4l14 8-14 8z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+            <symbol id="i-pause" viewBox="0 0 24 24"><path d="M6 4h4v16H6zM14 4h4v16h-4z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+            <symbol id="i-restart" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.3-5.7M4 3v4h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"/></symbol>
+            <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V3h13l-3 4 3 4H5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"/></symbol>
+            <symbol id="i-max" viewBox="0 0 24 24"><path d="M5 13l7-7 7 7M5 20l7-7 7 7" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"/></symbol>
+            <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"/></symbol>
+            <symbol id="i-check" viewBox="0 0 24 24"><path d="M4 12l5 5L20 6" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"/></symbol>
+            <symbol id="i-power" viewBox="0 0 24 24"><path d="M12 2v10M6.3 6.3a8 8 0 1 0 11.4 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"/></symbol>
+            <symbol id="i-deck" viewBox="0 0 24 24"><path d="M8 2h12v16H8z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M4 6v16h12" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+            <symbol id="i-live" viewBox="0 0 24 24"><path d="M10 9h4v6h-4z" fill="currentColor"/><path d="M7 6a8 8 0 0 0 0 12M17 6a8 8 0 0 1 0 12M4 3a12 12 0 0 0 0 18M20 3a12 12 0 0 1 0 18" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+            <symbol id="i-hurdle" viewBox="0 0 24 24"><path d="M3 8h18v5H3zM5 13v8M19 13v8M5 3v5M19 3v5" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+            <symbol id="i-classic" viewBox="0 0 24 24"><path d="M4 5h9v15H4zM13 7l6 1.5-3 13-3-.8" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+        </defs>
+    </svg>
+
+    <canvas id="confetti-canvas"></canvas>
+
+    <header class="game-header">
+        <a class="ib back-home" href="../../" aria-label="gemu404"><svg class="ico"><use href="#i-home"/></svg></a>
+        <h1>CARRERA DE JINETES</h1>
+        <div class="header-actions">
+            <span id="party-mode-indicator" class="party-badge-indicator hidden"></span>
+            <div class="bankroll-box" aria-label="Fichas">
+                <svg class="ico"><use href="#i-coin"/></svg>
+                <span class="bankroll-val" id="bankroll-display">$1,000</span>
+                <button id="btn-reload-chips" class="ib ib-sm" aria-label="Recargar"><svg class="ico"><use href="#i-plus"/></svg></button>
+            </div>
+            <button id="btn-open-party" class="ib" aria-label="Modo fiesta"><svg class="ico"><use href="#i-party"/></svg></button>
+            <button id="btn-open-settings" class="ib" aria-label="Ajustes"><svg class="ico"><use href="#i-sliders"/></svg></button>
+            <button id="btn-toggle-sound" class="ib" aria-label="Sonido"><svg class="ico on"><use href="#i-sound"/></svg><svg class="ico off"><use href="#i-mute"/></svg></button>
+            <a href="../" class="ib" aria-label="Versión clásica"><svg class="ico"><use href="#i-classic"/></svg></a>
+        </div>
+    </header>
+
+    <div class="commentary-bar">
+        <svg class="ico live"><use href="#i-live"/></svg>
+        <span id="commentary-text" class="commentary-text">Gran Premio de la Baraja Española</span>
+    </div>
+
+    <main class="main-layout">
+        <section class="track-section">
+            <div class="track-container" id="race-track"></div>
+
+            <div class="race-controls-bar hidden" id="race-controls-bar">
+                <div class="controls-left">
+                    <button id="btn-draw-card" class="btn-primary"><svg class="ico"><use href="#i-card"/></svg><span>CARTA</span></button>
+                    <button id="btn-auto-race" class="btn-secondary" aria-label="Automático"><svg class="ico"><use href="#i-play"/></svg></button>
+                    <button id="btn-pause-race" class="btn-secondary hidden" aria-label="Pausa"><svg class="ico"><use href="#i-pause"/></svg></button>
+                </div>
+                <div class="controls-right">
+                    <div class="speed-buttons seg">
+                        <button class="btn-speed" data-speed="1600">1x</button>
+                        <button class="btn-speed active" data-speed="1000">2x</button>
+                        <button class="btn-speed" data-speed="500">3x</button>
+                        <button class="btn-speed" data-speed="250">4x</button>
+                    </div>
+                    <button id="btn-restart-now" class="ib" aria-label="Reiniciar"><svg class="ico"><use href="#i-restart"/></svg></button>
+                </div>
+            </div>
+
+            <div class="paddock-panel" id="paddock-panel">
+                <div class="chips-selector-bar">
+                    <div class="chips-list seg">
+                        <button class="chip-btn" data-amount="10">10</button>
+                        <button class="chip-btn" data-amount="25">25</button>
+                        <button class="chip-btn active" data-amount="50">50</button>
+                        <button class="chip-btn" data-amount="100">100</button>
+                        <button class="chip-btn" data-amount="250">250</button>
+                        <button class="chip-btn" data-amount="500">500</button>
+                    </div>
+                    <button id="btn-all-in" class="ib" aria-label="All-in"><svg class="ico"><use href="#i-max"/></svg></button>
+                    <button id="btn-clear-bets" class="ib" aria-label="Limpiar"><svg class="ico"><use href="#i-x"/></svg></button>
+                </div>
+                <div class="paddock-grid">
+                    <button class="btn-bet-suit suit-bet-card" data-suit="oros"><span class="sb-icon" data-suit-icon="oros"></span><span class="sb-name">OROS</span><span class="suit-bet-amount" data-suit="oros">$0</span></button>
+                    <button class="btn-bet-suit suit-bet-card" data-suit="copas"><span class="sb-icon" data-suit-icon="copas"></span><span class="sb-name">COPAS</span><span class="suit-bet-amount" data-suit="copas">$0</span></button>
+                    <button class="btn-bet-suit suit-bet-card" data-suit="espadas"><span class="sb-icon" data-suit-icon="espadas"></span><span class="sb-name">ESPADAS</span><span class="suit-bet-amount" data-suit="espadas">$0</span></button>
+                    <button class="btn-bet-suit suit-bet-card" data-suit="bastos"><span class="sb-icon" data-suit-icon="bastos"></span><span class="sb-name">BASTOS</span><span class="suit-bet-amount" data-suit="bastos">$0</span></button>
+                </div>
+                <div class="paddock-footer">
+                    <span class="total-bet-summary"><svg class="ico"><use href="#i-coin"/></svg><span id="total-bet-display" class="total-bet-val">$0</span></span>
+                    <button id="btn-start-race" class="btn-primary"><svg class="ico"><use href="#i-flag"/></svg><span>LARGAR</span></button>
+                </div>
+            </div>
+        </section>
+
+        <aside class="side-panel">
+            <div class="deck-card-box" id="side-deck-section">
+                <div class="current-card-slot" id="current-card-slot"></div>
+            </div>
+            <div class="stats-card-box">
+                <div class="deck-box-title"><svg class="ico"><use href="#i-deck"/></svg><span id="deck-count">40</span></div>
+                <div class="stats-grid">
+                    <div class="stat-item" data-s="oros"><span class="sb-icon" data-suit-icon="oros"></span><span class="stat-count" id="count-stat-oros">0</span></div>
+                    <div class="stat-item" data-s="copas"><span class="sb-icon" data-suit-icon="copas"></span><span class="stat-count" id="count-stat-copas">0</span></div>
+                    <div class="stat-item" data-s="espadas"><span class="sb-icon" data-suit-icon="espadas"></span><span class="stat-count" id="count-stat-espadas">0</span></div>
+                    <div class="stat-item" data-s="bastos"><span class="sb-icon" data-suit-icon="bastos"></span><span class="stat-count" id="count-stat-bastos">0</span></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Paneles: reemplazan el contenido en el lugar (sin popups flotantes) -->
+        <section id="modal-victory" class="modal-overlay hidden">
+            <div class="modal-card">
+                <div class="modal-body" id="victory-details"></div>
+                <div class="modal-footer">
+                    <button id="btn-new-race" class="btn-primary"><svg class="ico"><use href="#i-restart"/></svg><span>OTRA</span></button>
+                </div>
+            </div>
+        </section>
+
+        <section id="modal-settings" class="modal-overlay hidden">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <svg class="ico"><use href="#i-sliders"/></svg>
+                    <button class="ib btn-close-settings" aria-label="Cerrar"><svg class="ico"><use href="#i-x"/></svg></button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-row">
+                        <svg class="ico"><use href="#i-hurdle"/></svg>
+                        <div class="seg" data-bind="select-hurdles-count">
+                            <button data-v="5">5</button><button data-v="7" class="active">7</button><button data-v="9">9</button>
+                        </div>
+                        <select id="select-hurdles-count" hidden><option value="5">5</option><option value="7" selected>7</option><option value="9">9</option></select>
+                    </div>
+                    <div class="form-row">
+                        <svg class="ico"><use href="#i-card"/></svg>
+                        <div class="seg" data-bind="select-hurdle-rule">
+                            <button data-v="all_cross" class="active">TODOS</button><button data-v="first_reaches">PRIMERO</button>
+                        </div>
+                        <select id="select-hurdle-rule" hidden><option value="all_cross" selected>all</option><option value="first_reaches">first</option></select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-primary btn-close-settings" aria-label="Listo"><svg class="ico"><use href="#i-check"/></svg></button>
+                </div>
+            </div>
+        </section>
+
+        <section id="modal-party" class="modal-overlay hidden">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <svg class="ico"><use href="#i-party"/></svg>
+                    <button id="btn-party-off" class="ib" aria-label="Desactivar"><svg class="ico"><use href="#i-power"/></svg></button>
+                </div>
+                <div class="modal-body">
+                    <div id="party-players-list"></div>
+                    <button id="btn-add-party-player" class="btn-secondary wide" aria-label="Agregar"><svg class="ico"><use href="#i-plus"/></svg></button>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn-primary btn-close-party" aria-label="Listo"><svg class="ico"><use href="#i-check"/></svg></button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script src="../audio.js"></script>
+    <script src="../deck.js"></script>
+    <script src="../game.js"></script>
+    <script src="waynyan.js"></script>
+    <script>
+        if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+            navigator.serviceWorker.register('../sw.js', { scope: '../' }).catch(() => {});
+        }
+    </script>
+</body>
+</html>

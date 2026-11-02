@@ -1,0 +1,344 @@
+/* Carrera de Jinetes - tema waynyan (gemu404.cl)
+   Cristal oscuro + borde acento + chaflan. Fuentes pixel locales. Iconos SVG. */
+@font-face { font-family: 'Press Start 2P'; src: url('fonts/PressStart2P-Regular.woff2') format('woff2'); font-display: swap; }
+@font-face { font-family: 'VT323'; src: url('fonts/VT323-Regular.woff2') format('woff2'); font-display: swap; }
+
+:root {
+    --accent: #00e5ff;
+    --bg: #05070d;
+    --panel: rgba(9, 13, 22, 0.94);
+    --piece: #0b111c;
+    --text: #e6faff;
+    --muted: color-mix(in srgb, var(--accent) 40%, #7d8a99);
+    --line: color-mix(in srgb, var(--accent) 75%, transparent);
+    --soft: color-mix(in srgb, var(--accent) 14%, transparent);
+    --sel: color-mix(in srgb, var(--accent) 24%, transparent);
+    --c: 10px;
+    --bw: 2px;
+    --px: 'Press Start 2P', monospace;
+    --vt: 'VT323', 'Press Start 2P', monospace;
+    --suit-oros: #f4b223; --suit-copas: #ff4a4a; --suit-espadas: #4d8bff; --suit-bastos: #2fd35a;
+    --card-width: 92px;
+    --card-font: 'Press Start 2P', monospace;
+    --back-bg: #070b14;
+    --back-line: color-mix(in srgb, var(--accent) 30%, transparent);
+    --back-frame: var(--accent);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+    min-height: 100vh; min-height: 100dvh;
+    background:
+        linear-gradient(rgba(255,255,255,0.018) 50%, transparent 50%) 0 0 / 100% 4px,
+        linear-gradient(90deg, color-mix(in srgb, var(--accent) 6%, transparent) 1px, transparent 1px) 0 0 / 32px 32px,
+        linear-gradient(color-mix(in srgb, var(--accent) 6%, transparent) 1px, transparent 1px) 0 0 / 32px 32px,
+        radial-gradient(ellipse at 50% -20%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 60%),
+        var(--bg);
+    color: var(--text);
+    font-family: var(--px);
+    font-size: 10px;
+    line-height: 1.5;
+    image-rendering: pixelated;
+    display: flex; flex-direction: column;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+.hidden { display: none !important; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
+button:disabled { opacity: 0.35; cursor: not-allowed; }
+a { color: inherit; }
+.ico { width: 18px; height: 18px; flex: none; display: block; }
+:focus-visible { outline: 2px dashed var(--accent); outline-offset: 3px; }
+
+/* ---------- Chaflan con borde (placa) ---------- */
+.ch, .ib, .btn-primary, .btn-secondary, .seg > button, .suit-bet-card, .track-container, .race-controls-bar,
+.paddock-panel, .deck-card-box, .stats-card-box, .modal-card, .commentary-bar, .bankroll-box, .stat-item,
+.podium-item, .victory-prize, .party-results-box, .winner-hero, .party-badge-indicator, .btn-remove-player {
+    --cc: var(--c);
+    position: relative;
+    isolation: isolate;
+    background: var(--line);
+    clip-path: polygon(var(--cc) 0, calc(100% - var(--cc)) 0, 100% var(--cc), 100% calc(100% - var(--cc)), calc(100% - var(--cc)) 100%, var(--cc) 100%, 0 calc(100% - var(--cc)), 0 var(--cc));
+}
+.ch::before, .ib::before, .btn-primary::before, .btn-secondary::before, .seg > button::before, .suit-bet-card::before,
+.track-container::before, .race-controls-bar::before, .paddock-panel::before, .deck-card-box::before, .stats-card-box::before,
+.modal-card::before, .commentary-bar::before, .bankroll-box::before, .stat-item::before, .podium-item::before,
+.victory-prize::before, .party-results-box::before, .winner-hero::before, .party-badge-indicator::before, .btn-remove-player::before {
+    content: ''; position: absolute; inset: var(--bw); z-index: -1;
+    background: var(--fill, var(--panel));
+    clip-path: polygon(calc(var(--cc) - 1px) 0, calc(100% - var(--cc) + 1px) 0, 100% calc(var(--cc) - 1px), 100% calc(100% - var(--cc) + 1px), calc(100% - var(--cc) + 1px) 100%, calc(var(--cc) - 1px) 100%, 0 calc(100% - var(--cc) + 1px), 0 calc(var(--cc) - 1px));
+}
+
+/* Botones */
+.ib, .btn-primary, .btn-secondary, .seg > button, .btn-remove-player {
+    --cc: 6px; --fill: var(--piece);
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 40px; min-width: 40px; padding: 0 12px;
+    color: var(--accent); text-decoration: none; text-transform: uppercase; letter-spacing: 1px;
+    transition: transform 80ms steps(2);
+}
+.ib { padding: 0; width: 40px; }
+.ib-sm { min-height: 28px; min-width: 28px; width: 28px; --cc: 4px; }
+.ib-sm .ico { width: 14px; height: 14px; }
+.btn-primary { --fill: color-mix(in srgb, var(--accent) 16%, var(--piece)); min-height: 46px; padding: 0 18px; }
+.btn-secondary { background: color-mix(in srgb, var(--accent) 45%, transparent); }
+.ib:hover, .btn-primary:hover, .btn-secondary:hover, .seg > button:hover { --fill: color-mix(in srgb, var(--accent) 22%, var(--piece)); }
+.ib:active, .btn-primary:active, .btn-secondary:active, .seg > button:active, .suit-bet-card:active { transform: translateY(1px); }
+.btn-primary:disabled:hover, .ib:disabled:hover { --fill: var(--piece); }
+.seg { display: flex; flex-wrap: wrap; gap: 4px; }
+.seg > button { background: color-mix(in srgb, var(--accent) 40%, transparent); color: var(--muted); padding: 0 10px; }
+.seg > button.active { background: var(--accent); --fill: color-mix(in srgb, var(--accent) 28%, var(--piece)); color: var(--text); }
+.wide { width: 100%; margin-top: 8px; }
+#btn-restart-now.armed { background: #ff3b5c; color: #ff3b5c; --fill: rgba(255, 59, 92, 0.18); animation: armed 0.4s steps(2) infinite; }
+@keyframes armed { 50% { --fill: rgba(255, 59, 92, 0.35); } }
+#btn-toggle-sound .off, #btn-toggle-sound.muted .on { display: none; }
+#btn-toggle-sound.muted .off { display: block; }
+#btn-toggle-sound.muted { color: var(--muted); }
+
+/* ---------- Cabecera ---------- */
+.game-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 16px; max-width: 1500px; width: 100%; margin: 0 auto;
+}
+.game-header h1 {
+    font-size: 14px; font-weight: 400; color: var(--accent); letter-spacing: 2px;
+    text-shadow: 0 0 8px color-mix(in srgb, var(--accent) 60%, transparent);
+    flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.header-actions { display: flex; align-items: center; gap: 6px; }
+.bankroll-box { --cc: 6px; --fill: var(--piece); display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 6px 0 12px; color: var(--accent); }
+.bankroll-val { font-size: 11px; color: var(--text); }
+.party-badge-indicator { --cc: 6px; --fill: var(--sel); display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 12px; color: var(--accent); }
+.party-badge-indicator::after { content: ''; width: 18px; height: 18px; order: -1;
+    background: currentColor;
+    -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Ccircle cx='8' cy='8' r='3'/%3E%3Ccircle cx='17' cy='9' r='2.5'/%3E%3Cpath d='M2 20v-2a5 5 0 0 1 10 0v2M14 20v-1.5a4 4 0 0 1 8 0V20'/%3E%3C/svg%3E") center / contain no-repeat;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2'%3E%3Ccircle cx='8' cy='8' r='3'/%3E%3Ccircle cx='17' cy='9' r='2.5'/%3E%3Cpath d='M2 20v-2a5 5 0 0 1 10 0v2M14 20v-1.5a4 4 0 0 1 8 0V20'/%3E%3C/svg%3E") center / contain no-repeat; }
+
+/* ---------- Relator ---------- */
+.commentary-bar {
+    --cc: 8px; --fill: color-mix(in srgb, var(--accent) 8%, var(--panel));
+    display: flex; align-items: center; gap: 12px;
+    max-width: 1468px; width: calc(100% - 32px); margin: 0 auto; padding: 8px 14px; min-height: 44px;
+}
+.commentary-bar .live { color: #ff3b5c; animation: blink 1s steps(2) infinite; }
+@keyframes blink { 50% { opacity: 0.25; } }
+.commentary-text { font-family: var(--vt); font-size: 20px; line-height: 1.1; color: var(--text); }
+.commentary-pulse { animation: pop 0.35s steps(3); }
+@keyframes pop { 0% { opacity: 0; transform: translateX(-6px); } 100% { opacity: 1; transform: none; } }
+
+/* ---------- Layout ---------- */
+.main-layout { display: flex; gap: 16px; padding: 16px; max-width: 1500px; width: 100%; margin: 0 auto; flex: 1; align-items: flex-start; }
+.main-layout > * { min-width: 0; }
+.track-section { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+.side-panel { width: 220px; display: flex; flex-direction: column; gap: 12px; }
+
+/* ---------- Pista ---------- */
+.track-container { --cc: 14px; --fill: var(--panel); padding: 14px; overflow-x: auto; }
+.track-steps-header { display: none; }
+.track-hurdles-row, .track-lane {
+    display: grid; gap: 6px; align-items: center;
+}
+.track-hurdles-row {
+    grid-template-columns: 104px repeat(calc(var(--steps-count, 7) + 2), minmax(0, 1fr));
+    padding-bottom: 12px; margin-bottom: 10px;
+    border-bottom: 2px dashed color-mix(in srgb, var(--accent) 35%, transparent);
+}
+.hurdle-cell { display: flex; flex-direction: column; align-items: center; gap: 6px; position: relative; }
+.hurdle-placeholder span, .hurdle-empty-start span, .hurdle-finish-banner span { display: none; }
+.hurdle-card-wrapper { width: 100%; max-width: 54px; perspective: 600px; }
+.hurdle-card-wrapper .spanish-card { width: 100%; }
+.hurdle-label { font-size: 8px; color: var(--muted); }
+.hurdle-hit .hurdle-label { color: #ff3b5c; }
+.hurdle-hit.hit-oros .hurdle-label { color: var(--suit-oros); }
+.hurdle-hit.hit-copas .hurdle-label { color: var(--suit-copas); }
+.hurdle-hit.hit-espadas .hurdle-label { color: var(--suit-espadas); }
+.hurdle-hit.hit-bastos .hurdle-label { color: var(--suit-bastos); }
+.hurdle-trigger-flip { animation: flip 0.6s steps(6); }
+@keyframes flip { 0% { transform: rotateY(0); } 50% { transform: rotateY(90deg) translateY(-6px) scale(1.15); } 100% { transform: rotateY(0); } }
+
+.track-lane { grid-template-columns: 104px minmax(0, 1fr); margin-bottom: 6px; }
+.lane-info { display: flex; align-items: center; gap: 8px; padding-left: 8px; border-left: 3px solid; min-width: 0; height: 100%; }
+.lane-oros .lane-info { border-left-color: var(--suit-oros) !important; }
+.lane-copas .lane-info { border-left-color: var(--suit-copas) !important; }
+.lane-espadas .lane-info { border-left-color: var(--suit-espadas) !important; }
+.lane-bastos .lane-info { border-left-color: var(--suit-bastos) !important; }
+.lane-details { display: flex; flex-direction: column; min-width: 0; }
+.lane-name { font-size: 8px; color: var(--text); }
+.lane-horse-name { display: none; }
+.lane-track-cells { display: grid; gap: 6px; grid-template-columns: repeat(calc(var(--steps-count, 7) + 2), minmax(0, 1fr)); }
+.track-cell {
+    position: relative; min-height: 62px; display: flex; align-items: center; justify-content: center;
+    background: color-mix(in srgb, var(--accent) 5%, transparent);
+    outline: 1px solid color-mix(in srgb, var(--accent) 18%, transparent); outline-offset: -1px;
+    clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+}
+.cell-marker { position: absolute; right: 4px; bottom: 3px; font-size: 7px; color: color-mix(in srgb, var(--accent) 35%, transparent); }
+.start-box .cell-marker { display: none; }
+.cell-finish {
+    background: repeating-conic-gradient(color-mix(in srgb, var(--accent) 35%, transparent) 0 25%, transparent 0 50%) 0 0 / 12px 12px;
+}
+.meta-marker { color: var(--accent); }
+.meta-marker .ico { width: 14px; height: 14px; }
+.lane-hit .track-cell { animation: hit 0.6s steps(3); }
+@keyframes hit { 50% { background: rgba(255, 59, 92, 0.35); } }
+
+.horse-runner-container { display: flex; flex-direction: column; align-items: center; z-index: 2; animation: idle 0.6s steps(2) infinite alternate; }
+@keyframes idle { to { transform: translateY(-2px); } }
+.horse-sprite { width: 62px; height: 44px; }
+.horse-hud-badge { display: none; }
+.horse-advancing { animation: adv 0.25s steps(3); }
+@keyframes adv { to { transform: translateX(40%); } }
+.horse-retreating { animation: ret 0.25s steps(3); }
+@keyframes ret { to { transform: translateX(-40%); } }
+.horse-penalized-flash { animation: pen 0.2s steps(2) 4; }
+@keyframes pen { 50% { opacity: 0.2; } }
+
+/* ---------- Controles ---------- */
+.race-controls-bar { --cc: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; flex-wrap: wrap; }
+.controls-left, .controls-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+/* ---------- Paddock ---------- */
+.paddock-panel { --cc: 14px; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+.chips-selector-bar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.chips-list { flex: 1; }
+.chips-list .chip-btn { flex: 1 1 0; min-width: 52px; }
+.paddock-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.suit-bet-card {
+    --cc: 10px; --fill: var(--piece);
+    display: flex; flex-direction: column; align-items: center; gap: 10px;
+    padding: 16px 8px; min-height: 120px; color: var(--text);
+}
+.suit-bet-card[data-suit="oros"] { background: var(--suit-oros); }
+.suit-bet-card[data-suit="copas"] { background: var(--suit-copas); }
+.suit-bet-card[data-suit="espadas"] { background: var(--suit-espadas); }
+.suit-bet-card[data-suit="bastos"] { background: var(--suit-bastos); }
+.suit-bet-card:hover { --fill: color-mix(in srgb, var(--accent) 12%, var(--piece)); }
+.sb-icon .suit-svg { width: 34px; height: 34px; display: block; }
+.sb-name { font-size: 9px; }
+.suit-bet-amount { font-family: var(--vt); font-size: 26px; color: var(--accent); }
+.paddock-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.total-bet-summary { display: flex; align-items: center; gap: 8px; color: var(--accent); }
+.total-bet-val { font-family: var(--vt); font-size: 28px; color: var(--text); }
+
+/* ---------- Lateral ---------- */
+.deck-card-box, .stats-card-box { --cc: 12px; padding: 14px; }
+.current-card-slot { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.current-card-slot .spanish-card { --card-width: 150px; }
+.drawn-card-animation { animation: draw 0.3s steps(4); }
+@keyframes draw { from { transform: translateY(-14px) rotate(-4deg); opacity: 0; } }
+.drawn-card-label { font-size: 8px; text-align: center; }
+.deck-box-title { display: flex; align-items: center; gap: 8px; color: var(--accent); margin-bottom: 10px; font-size: 11px; }
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.stat-item { --cc: 5px; --fill: var(--piece); display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; }
+.stat-item .suit-svg { width: 20px; height: 20px; display: block; }
+.stat-count { font-family: var(--vt); font-size: 22px; }
+
+/* ---------- Cartas en waynyan: marco chaflan, baraja intacta ---------- */
+.spanish-card {
+    width: var(--card-width); aspect-ratio: 2 / 3; flex: none; position: relative;
+    clip-path: polygon(8% 0, 92% 0, 100% 5.3%, 100% 94.7%, 92% 100%, 8% 100%, 0 94.7%, 0 5.3%);
+    filter: drop-shadow(0 0 4px color-mix(in srgb, var(--accent) 35%, transparent));
+}
+.card-svg { display: block; width: 100%; height: 100%; }
+.card-paper { fill: #fbf6ea; }
+.card-idx { font: 400 26px var(--card-font); }
+.back-bg { fill: var(--back-bg); }
+.back-line { stroke: var(--back-line); }
+.back-frame { stroke: var(--back-frame); }
+.back-dot { fill: var(--back-frame); }
+
+/* ---------- Paneles en el lugar (reemplazan el contenido) ---------- */
+body.has-panel .track-section, body.has-panel .side-panel { display: none; }
+.modal-overlay { width: 100%; max-width: 760px; margin: 0 auto; }
+.modal-card { --cc: 16px; padding: 18px; display: flex; flex-direction: column; gap: 16px; }
+.modal-header { display: flex; align-items: center; justify-content: space-between; color: var(--accent); }
+.modal-header > .ico { width: 24px; height: 24px; }
+.modal-footer { display: flex; justify-content: center; }
+.form-row { display: flex; align-items: center; gap: 14px; padding: 10px 0; color: var(--accent); }
+.form-row .seg { flex: 1; }
+.form-row .seg > button { flex: 1; }
+
+#party-players-list { display: flex; flex-direction: column; gap: 8px; }
+.party-player-row { display: grid; grid-template-columns: 1.2fr 0.9fr 1.4fr 40px; gap: 6px; align-items: center; }
+.party-player-row input, .party-player-row select {
+    font: 18px var(--vt); color: var(--text); background: var(--piece);
+    border: 0; box-shadow: inset 0 -2px 0 var(--line), inset 0 0 0 1px color-mix(in srgb, var(--accent) 25%, transparent);
+    height: 40px; padding: 0 10px; width: 100%; min-width: 0;
+    clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+    border-radius: 0; appearance: none; -webkit-appearance: none;
+}
+.party-player-row select { font-family: var(--px); font-size: 8px; }
+.party-player-row input:focus, .party-player-row select:focus { outline: none; box-shadow: inset 0 -2px 0 var(--accent), inset 0 0 0 1px var(--accent); }
+.btn-remove-player { padding: 0; width: 40px; background: color-mix(in srgb, #ff3b5c 70%, transparent); color: #ff3b5c; }
+
+/* Victoria */
+.winner-hero { --cc: 14px; --fill: color-mix(in srgb, var(--accent) 10%, var(--panel)); text-align: center; padding: 22px 12px; display: flex; flex-direction: column; align-items: center; gap: 12px; background: var(--accent) !important; }
+.winner-trophy .ico { width: 44px; height: 44px; color: var(--accent); }
+.winner-title { font-size: 13px; font-weight: 400; line-height: 1.7; color: var(--text); text-shadow: 0 0 8px color-mix(in srgb, var(--accent) 60%, transparent); }
+.winner-subtitle { font-family: var(--vt); font-size: 22px; color: var(--accent); }
+.winner-icon .suit-svg { width: 64px; height: 64px; }
+.victory-prize { --cc: 8px; margin-top: 12px; padding: 12px; display: flex; flex-direction: column; gap: 6px; text-align: center; }
+.victory-prize.win { background: #2fd35a; color: #2fd35a; }
+.victory-prize.loss { background: #ff3b5c; color: #ff3b5c; }
+.prize-amount, .prize-sub { font-family: var(--vt); font-size: 20px; color: var(--text); }
+.party-results-box { --cc: 8px; margin-top: 12px; padding: 12px; font-family: var(--vt); font-size: 20px; }
+.party-results-box h4 { font: 400 9px var(--px); color: var(--accent); margin-bottom: 6px; }
+.party-results-box strong { font-weight: 400; color: var(--accent); }
+.party-results-box ul { list-style: none; }
+.podium-container { margin-top: 14px; }
+.podium-container h3 { font-size: 9px; font-weight: 400; color: var(--muted); margin-bottom: 10px; text-align: center; }
+.podium-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.podium-item { --cc: 8px; --fill: var(--piece); padding: 12px 6px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center; border: 0 !important; }
+.podium-item.rank-1 { --fill: color-mix(in srgb, var(--accent) 22%, var(--piece)); }
+.podium-medal { color: var(--accent); }
+.podium-medal .ico { width: 30px; height: 30px; }
+.podium-item:not(.rank-1) .podium-medal { color: var(--muted); }
+.podium-suit-icon .suit-svg { width: 28px; height: 28px; }
+.podium-name { font-size: 8px; }
+.podium-steps { font-family: var(--vt); font-size: 18px; color: var(--muted); }
+.podium-steps .ico { color: var(--accent); }
+
+#confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 50; }
+
+/* ---------- Responsivo ---------- */
+@media (max-width: 1024px) {
+    .main-layout { flex-direction: column; align-items: stretch; }
+    .side-panel { width: 100%; flex-direction: row; }
+    .deck-card-box, .stats-card-box { flex: 1; }
+    .current-card-slot .spanish-card { --card-width: 96px; }
+}
+@media (max-width: 640px) {
+    body { font-size: 9px; }
+    .game-header { padding: 10px; gap: 6px; flex-wrap: wrap; }
+    .game-header h1 { font-size: 10px; order: 0; }
+    .header-actions { width: 100%; justify-content: flex-end; order: 1; }
+    .bankroll-box { margin-right: auto; }
+    .commentary-bar { width: calc(100% - 20px); }
+    .commentary-text { font-size: 18px; }
+    .main-layout { padding: 10px; gap: 10px; }
+    .track-container { --cc: 8px; padding: 8px; }
+    .track-hurdles-row { grid-template-columns: 26px repeat(calc(var(--steps-count, 7) + 2), minmax(0, 1fr)); gap: 3px; }
+    .track-lane { grid-template-columns: 26px minmax(0, 1fr); gap: 3px; margin-bottom: 4px; }
+    .lane-track-cells { gap: 3px; }
+    .lane-details { display: none; }
+    .lane-info { padding-left: 3px; }
+    .lane-suit-icon .suit-svg { width: 18px; height: 18px; }
+    .track-cell { min-height: 40px; }
+    .cell-marker { display: none; }
+    .horse-sprite { width: 100%; max-width: 34px; height: auto; }
+    .hurdle-label { font-size: 6px; }
+    .paddock-grid { grid-template-columns: repeat(2, 1fr); }
+    .controls-left, .controls-right { width: 100%; }
+    #btn-draw-card { flex: 1; }
+    .controls-right .seg { flex: 1; }
+    .controls-right .seg > button { flex: 1; }
+    .side-panel { flex-direction: row; }
+    .current-card-slot .spanish-card { --card-width: 84px; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .stat-item { padding: 4px 6px; }
+    .podium-grid { grid-template-columns: repeat(2, 1fr); }
+    .party-player-row { grid-template-columns: 1fr 1fr 40px; }
+    .party-player-row .party-stake-input { grid-column: 1 / 3; grid-row: 2; }
+    .party-player-row .btn-remove-player { grid-row: 1 / 3; grid-column: 3; height: 100%; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
