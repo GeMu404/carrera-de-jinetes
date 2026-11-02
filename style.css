@@ -338,26 +338,11 @@ body {
 .hurdle-card-wrapper {
     perspective: 800px;
     width: 50px;
-    height: 72px;
     transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .hurdle-card-wrapper .spanish-card {
-    width: 100% !important;
-    height: 100% !important;
-}
-
-.hurdle-card-wrapper .spanish-card .card-border {
-    padding: 2px;
-}
-
-.hurdle-card-wrapper .spanish-card .suit-svg {
-    width: 16px !important;
-    height: 16px !important;
-}
-
-.hurdle-card-wrapper .spanish-card .card-val {
-    font-size: 0.65rem !important;
+    width: 100%;
 }
 
 .hurdle-trigger-flip {
@@ -366,8 +351,8 @@ body {
 
 @keyframes flip-hurdle-3d {
     0% { transform: scale(1) rotateY(0deg); }
-    40% { transform: scale(1.2) translateY(-10px) rotateY(90deg); }
-    100% { transform: scale(1) translateY(0) rotateY(180deg); }
+    37% { transform: scale(1.2) translateY(-10px) rotateY(90deg); }
+    100% { transform: scale(1) translateY(0) rotateY(0deg); }
 }
 
 .hurdle-penalty-popup {
@@ -972,160 +957,24 @@ body {
 }
 
 /* ==============================================
-   DISEÑO GRÁFICO DE LA CARTA ESPAÑOLA
+   CARTA ESPAÑOLA (SVG único por carta, escala nítida)
    ============================================== */
 .spanish-card {
     width: var(--card-width);
-    height: var(--card-height);
-    background: #fffdf5;
-    border-radius: var(--card-radius);
+    aspect-ratio: 2 / 3;
+    height: auto;
+    border-radius: 7%/4.7%;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0,0,0,0.2);
     position: relative;
-    overflow: hidden;
-    color: #0f172a;
-    font-family: 'Georgia', serif;
+    flex: none;
 }
-
-/* Reverso de la Baraja Española */
-.card-back {
-    background: #1e3a8a;
-    border: 3px solid #ffffff;
-}
-
-.card-back-pattern {
-    width: 100%;
-    height: 100%;
-    background-image: 
-        radial-gradient(#3b82f6 20%, transparent 20%),
-        radial-gradient(#1e40af 20%, transparent 20%);
-    background-size: 12px 12px;
-    background-position: 0 0, 6px 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 4px;
-}
-
-.card-back-inner {
-    width: 100%;
-    height: 100%;
-    border: 2px solid #93c5fd;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.card-back-crest {
-    font-size: 1.2rem;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-}
-
-/* Frente de la Carta */
-.card-border {
-    position: absolute;
-    top: 4px;
-    bottom: 4px;
-    left: 4px;
-    right: 4px;
-    border: 1.5px solid #d4af37;
-    border-radius: 4px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    padding: 4px;
-}
-
-/* Pintas tradicionales de la baraja española */
-.pintas-1 {
-    border-top: 1.5px dashed #dc2626 !important;
-    border-bottom: 1.5px dashed #dc2626 !important;
-}
-
-.pintas-2 {
-    border-top: 2px dotted #2563eb !important;
-    border-bottom: 2px dotted #2563eb !important;
-}
-
-.pintas-3 {
-    border-top: 2px double #16a34a !important;
-    border-bottom: 2px double #16a34a !important;
-}
-
-.card-corner {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    line-height: 1;
-}
-
-.corner-tl {
-    align-self: flex-start;
-}
-
-.corner-br {
-    align-self: flex-end;
-    transform: rotate(180deg);
-}
-
-.card-val {
-    font-size: 0.9rem;
-    font-weight: 800;
-}
-
-.card-center {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Figuras: Sota, Caballo, Rey */
-.figure-frame {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-}
-
-.figure-label {
-    font-size: 0.6rem;
-    font-weight: 800;
-    color: #475569;
-    letter-spacing: 0.5px;
-}
-
-.figure-title {
-    font-size: 0.55rem;
-    font-weight: 700;
-    color: #64748b;
-    margin-top: 2px;
-}
-
-/* Pips / Símbolos 2 al 7 */
-.pips-grid {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: center;
-    gap: 4px;
-    width: 100%;
-    padding: 4px;
-}
-
-.ace-frame {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.ace-banner {
-    font-size: 0.6rem;
-    font-weight: 800;
-    margin-top: 4px;
-    color: #475569;
-}
+.card-svg { display: block; width: 100%; height: 100%; }
+.card-paper { fill: var(--card-paper, #fffaf0); }
+.card-idx { font: 700 30px var(--card-font, Georgia, 'Times New Roman', serif); }
+.back-bg { fill: var(--back-bg, #1e3a8a); }
+.back-line { stroke: var(--back-line, #2f56b8); }
+.back-frame { stroke: var(--back-frame, #e8eefc); fill-opacity: 1; }
+.back-dot { fill: var(--back-frame, #e8eefc); }
 
 /* Modales */
 .modal-overlay {
@@ -1393,4 +1242,51 @@ body {
         flex-direction: column;
         gap: 10px;
     }
+}
+
+/* ===== Ajustes v2 ===== */
+.hurdle-hit .hurdle-label { color: #fca5a5; font-weight: 800; }
+.hurdle-hit.hit-oros .hurdle-label { color: var(--suit-oros); }
+.hurdle-hit.hit-copas .hurdle-label { color: var(--suit-copas); }
+.hurdle-hit.hit-espadas .hurdle-label { color: var(--suit-espadas); }
+.hurdle-hit.hit-bastos .hurdle-label { color: var(--suit-bastos); }
+.lane-hit { animation: lane-hit 0.9s ease; }
+@keyframes lane-hit { 0%, 100% { background-color: transparent; } 30% { background-color: rgba(239, 68, 68, 0.28); } }
+#btn-restart-now.armed { background: #b91c1c; color: #fff; border-color: #fecaca; }
+#btn-restart-now.armed::after { content: ' ¿Seguro?'; }
+button:disabled { opacity: 0.45; cursor: not-allowed; }
+.back-home { color: inherit; text-decoration: none; display: inline-flex; align-items: center; }
+#confetti-canvas { pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; } }
+a.btn-header { text-decoration: none; display: inline-flex; align-items: center; }
+
+/* ===== Móvil: pista compacta que cabe sin scroll horizontal ===== */
+.main-layout > * { min-width: 0; }
+@media (max-width: 640px) {
+    .main-layout { padding: 8px; gap: 10px; }
+    .track-container { padding: 6px; border-width: 3px; }
+    .track-steps-header { display: none; }
+    .track-hurdles-row, .track-lane, .track-steps-header { min-width: 0; }
+    .track-hurdles-row {
+        grid-template-columns: 30px repeat(calc(var(--steps-count, 7) + 2), minmax(0, 1fr));
+        gap: 3px;
+    }
+    .track-lane { grid-template-columns: 30px minmax(0, 1fr); gap: 3px; }
+    .lane-track-cells { grid-template-columns: repeat(calc(var(--steps-count, 7) + 2), minmax(0, 1fr)); gap: 3px; }
+    .hurdle-placeholder span, .hurdle-empty-start span, .hurdle-finish-banner span { display: none; }
+    .hurdle-label { font-size: 0.5rem; white-space: nowrap; overflow: hidden; max-width: 100%; }
+    .hurdle-card-wrapper { width: 100%; max-width: 34px; }
+    .lane-details { display: none; }
+    .lane-info { padding-left: 3px; border-left-width: 3px; }
+    .lane-suit-icon .suit-svg { width: 20px; height: 20px; }
+    .track-cell { min-height: 42px; }
+    .track-cell .cell-marker { display: none; }
+    .horse-sprite { width: 100%; max-width: 34px; height: auto; }
+    .horse-hud-badge { display: none; }
+    .race-controls-bar { flex-wrap: wrap; gap: 8px; }
+    .controls-left, .controls-right { width: 100%; flex-wrap: wrap; gap: 8px; }
+    .controls-left > button { flex: 1 1 140px; }
+    .side-panel { flex-direction: column; }
+    .modal-card { width: 96%; }
+    .podium-grid { grid-template-columns: repeat(2, 1fr); }
 }
