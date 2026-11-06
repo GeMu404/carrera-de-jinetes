@@ -194,7 +194,10 @@ a { color: inherit; }
 @keyframes pen { 50% { opacity: 0.2; } }
 
 /* ---------- Controles ---------- */
-.race-controls-bar { --cc: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; flex-wrap: wrap; }
+.race-controls-bar { --cc: 10px; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; flex-wrap: wrap; position: sticky; bottom: 8px; z-index: 30; }
+.race-dock-main, .race-dock-side { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.btn-dock-main { min-width: 7.5rem; justify-content: center; }
+.btn-largar { margin-left: auto; }
 .controls-left, .controls-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 
 /* ---------- Paddock ---------- */
@@ -323,11 +326,22 @@ body.has-panel .track-section, body.has-panel .side-panel { display: none; }
     .lane-details { display: none; }
     .lane-info { padding-left: 3px; }
     .lane-suit-icon .suit-svg { width: 18px; height: 18px; }
-    .track-cell { min-height: 40px; }
+    .track-cell { min-height: 46px; }
     .cell-marker { display: none; }
     .horse-sprite { width: 100%; max-width: 34px; height: auto; }
     .hurdle-label { font-size: 6px; }
     .paddock-grid { grid-template-columns: repeat(2, 1fr); }
+    .header-actions { flex-wrap: nowrap; gap: 4px; }
+    .header-actions .ib { width: 32px; min-width: 32px; height: 36px; }
+    .header-actions .ib-sm { width: 24px; min-width: 24px; }
+    .header-actions .bankroll-box { gap: 4px; padding-left: 6px; }
+    #paddock-footer {
+        position: sticky; bottom: 0; z-index: 10;
+        background: var(--panel);
+        padding: 10px 0 calc(10px + env(safe-area-inset-bottom, 0px));
+        flex-wrap: wrap;
+    }
+    #paddock-cta-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-left: auto; }
     .controls-left, .controls-right { width: 100%; }
     #btn-draw-card { flex: 1; }
     .controls-right .seg { flex: 1; }
@@ -342,3 +356,24 @@ body.has-panel .track-section, body.has-panel .side-panel { display: none; }
     .party-player-row .btn-remove-player { grid-row: 1 / 3; grid-column: 3; height: 100%; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+
+.rules-content { font-family: var(--vt); font-size: 22px; line-height: 1.3; }
+.rules-content p + p { margin-top: 10px; }
+
+.title-short { display: none; }
+.skin-switch { display: inline-flex; align-items: center; gap: 6px; text-decoration: none; font-size: 9px; }
+@media (max-width: 640px) {
+    .title-full { display: none; }
+    .title-short { display: inline; }
+    .game-header h1 { font-size: 10px; letter-spacing: 1px; }
+    .skin-switch { padding: 0 8px; }
+    .chips-list { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); width: 100%; flex-basis: 100%; gap: 3px; }
+    .chips-list .chip-btn { min-width: 0; min-height: 40px; padding: 0 2px; font-size: 8px; }
+    .race-controls-bar { bottom: 0; padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
+    .race-dock-main, .race-dock-side { width: 100%; flex-wrap: nowrap; gap: 6px; }
+    .race-dock-main .btn-dock-main { flex: 1; min-width: 0; }
+    .race-dock-main > button { font-size: 8px; min-height: 44px; padding: 0 8px; }
+    .race-dock-side { justify-content: space-between; }
+    .race-dock-side .seg { flex: 1; }
+    .race-dock-side .seg > button { flex: 1; min-height: 38px; }
+}

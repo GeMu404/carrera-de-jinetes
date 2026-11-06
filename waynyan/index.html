@@ -31,11 +31,13 @@
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="icon" href="icon.svg" type="image/svg+xml">
     <link rel="preload" href="fonts/PressStart2P-Regular.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="stylesheet" href="waynyan.css">
+    <link rel="stylesheet" href="waynyan.css?v=2.6.4-ui">
 </head>
 <body>
     <svg width="0" height="0" style="position:absolute" aria-hidden="true">
         <defs>
+            <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 8a3 3 0 0 1 6 0c0 2-3 2-3 5M12 16v2" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+            <symbol id="i-online" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 12h18M12 3c-5 5-5 13 0 18 5-5 5-13 0-18z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
             <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 9v12h5v-6h4v6h5V9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="square"/></symbol>
             <symbol id="i-coin" viewBox="0 0 24 24"><path d="M8 3h8l5 5v8l-5 5H8l-5-5V8z" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v10M9 9.5h4.5a1.5 1.5 0 0 1 0 3h-3a1.5 1.5 0 0 0 0 3H15" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
             <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"/></symbol>
@@ -63,7 +65,9 @@
 
     <header class="game-header">
         <a class="ib back-home" href="../../" aria-label="gemu404"><svg class="ico"><use href="#i-home"/></svg></a>
-        <h1>CARRERA DE JINETES</h1>
+        <h1><span class="title-full">CARRERA DE JINETES</span><span class="title-short">JINETES</span></h1>
+        <a href="../" class="btn-secondary skin-switch" aria-label="Estilo clásico" title="Estilo clásico"><svg class="ico"><use href="#i-classic"/></svg><span>Clásico</span></a>
+        <button id="btn-open-rules" class="ib" aria-label="Reglas" title="Reglas"><svg class="ico"><use href="#i-help"/></svg></button>
         <div class="header-actions">
             <span id="party-mode-indicator" class="party-badge-indicator hidden"></span>
             <div class="bankroll-box" aria-label="Fichas">
@@ -74,7 +78,6 @@
             <button id="btn-open-party" class="ib" aria-label="Modo fiesta"><svg class="ico"><use href="#i-party"/></svg></button>
             <button id="btn-open-settings" class="ib" aria-label="Ajustes"><svg class="ico"><use href="#i-sliders"/></svg></button>
             <button id="btn-toggle-sound" class="ib" aria-label="Sonido"><svg class="ico on"><use href="#i-sound"/></svg><svg class="ico off"><use href="#i-mute"/></svg></button>
-            <a href="../" class="ib" aria-label="Versión clásica"><svg class="ico"><use href="#i-classic"/></svg></a>
         </div>
     </header>
 
@@ -88,13 +91,13 @@
             <div class="track-container" id="race-track"></div>
 
             <div class="race-controls-bar hidden" id="race-controls-bar">
-                <div class="controls-left">
-                    <button id="btn-draw-card" class="btn-primary"><svg class="ico"><use href="#i-card"/></svg><span>CARTA</span></button>
-                    <button id="btn-auto-race" class="btn-secondary" aria-label="Automático"><svg class="ico"><use href="#i-play"/></svg></button>
-                    <button id="btn-pause-race" class="btn-secondary hidden" aria-label="Pausa"><svg class="ico"><use href="#i-pause"/></svg></button>
+                <div class="race-dock-main">
+                    <button id="btn-draw-card" class="btn-primary btn-dock-main"><svg class="ico"><use href="#i-card"/></svg><span>CARTA</span></button>
+                    <button id="btn-auto-race" class="btn-secondary" aria-label="Automático"><svg class="ico"><use href="#i-play"/></svg><span>AUTO</span></button>
+                    <button id="btn-pause-race" class="btn-secondary hidden" aria-label="Pausa"><svg class="ico"><use href="#i-pause"/></svg><span>PAUSA</span></button>
                 </div>
-                <div class="controls-right">
-                    <div class="speed-buttons seg">
+                <div class="race-dock-side">
+                    <div class="speed-buttons seg" title="Velocidad">
                         <button class="btn-speed" data-speed="1600">1x</button>
                         <button class="btn-speed active" data-speed="1000">2x</button>
                         <button class="btn-speed" data-speed="500">3x</button>
@@ -123,9 +126,12 @@
                     <button class="btn-bet-suit suit-bet-card" data-suit="espadas"><span class="sb-icon" data-suit-icon="espadas"></span><span class="sb-name">ESPADAS</span><span class="suit-bet-amount" data-suit="espadas">$0</span></button>
                     <button class="btn-bet-suit suit-bet-card" data-suit="bastos"><span class="sb-icon" data-suit-icon="bastos"></span><span class="sb-name">BASTOS</span><span class="suit-bet-amount" data-suit="bastos">$0</span></button>
                 </div>
-                <div class="paddock-footer">
+                <div class="paddock-footer" id="paddock-footer">
                     <span class="total-bet-summary"><svg class="ico"><use href="#i-coin"/></svg><span id="total-bet-display" class="total-bet-val">$0</span></span>
-                    <button id="btn-start-race" class="btn-primary"><svg class="ico"><use href="#i-flag"/></svg><span>LARGAR</span></button>
+                    <div class="paddock-cta-row" id="paddock-cta-row">
+                        <div id="paddock-online-slot" class="paddock-online-slot hidden"></div>
+                        <button id="btn-start-race" class="btn-primary btn-largar"><svg class="ico"><use href="#i-flag"/></svg><span>LARGAR</span></button>
+                    </div>
                 </div>
             </div>
         </section>
@@ -152,6 +158,22 @@
                 <div class="modal-footer">
                     <button id="btn-new-race" class="btn-primary"><svg class="ico"><use href="#i-restart"/></svg><span>OTRA</span></button>
                 </div>
+            </div>
+        </section>
+
+        <section id="modal-rules" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="rules-title">
+            <div class="modal-card">
+                <div class="modal-header">
+                    <h3 id="rules-title">Cómo jugar</h3>
+                    <button class="ib btn-close-rules" aria-label="Cerrar reglas"><svg class="ico"><use href="#i-x"/></svg></button>
+                </div>
+                <div class="modal-body rules-content">
+                <p>Elige una ficha y toca un caballo para apostar. Luego, Largar.</p>
+                <p>Cada carta mueve su palo; las vallas hacen retroceder. Gana quien llega primero.</p>
+                <p>Online: invita y marca Listo. Mínimo 2 jugadores; largan al minuto o cuando todos estén listos.</p>
+                <p>Solo fichas de juego, sin plata real.</p>
+                </div>
+                <div class="modal-footer"><button class="btn-primary btn-close-rules">Entendido</button></div>
             </div>
         </section>
 
@@ -200,10 +222,11 @@
         </section>
     </main>
 
-    <script src="../audio.js"></script>
-    <script src="../deck.js"></script>
-    <script src="../game.js"></script>
-    <script src="waynyan.js"></script>
+    <script src="../audio.js?v=2.6.4-ui"></script>
+    <script src="../deck.js?v=2.6.4-ui"></script>
+    <script src="../game.js?v=2.6.4-ui"></script>
+    <script src="waynyan.js?v=2.6.4-ui"></script>
+    <script src="../online.js?v=2.6.4-ui"></script>
     <script>
         if ('serviceWorker' in navigator && location.protocol !== 'file:') {
             navigator.serviceWorker.register('../sw.js', { scope: '../' }).catch(() => {});

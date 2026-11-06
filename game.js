@@ -37,6 +37,8 @@ class RaceGame {
         this.bankroll = parseInt(localStorage.getItem('jinetes_bankroll'), 10);
         if (!Number.isFinite(this.bankroll) || this.bankroll < 0) this.bankroll = 1000;
         this.bets = { oros: 0, copas: 0, espadas: 0, bastos: 0 };
+        this.lockedBets = { oros: 0, copas: 0, espadas: 0, bastos: 0 }; // apuestas de la carrera en curso
+        this.potBySuit = { oros: 0, copas: 0, espadas: 0, bastos: 0 }; // lo que se ve en la pista
         this.selectedChip = 50;
 
         // Modo Fiesta / Multijugador Local
@@ -258,9 +260,11 @@ class RaceGame {
     }
 
     syncMuteUI(btn, isMuted) {
-        if (!IS_WAYNYAN) btn.textContent = isMuted ? '🔇 Silencio' : '🔊 Sonido';
+        if (!IS_WAYNYAN) btn.textContent = isMuted ? '🔇' : '🔊';
         btn.classList.toggle('muted', isMuted);
         btn.setAttribute('aria-pressed', String(isMuted));
+        btn.setAttribute('aria-label', isMuted ? 'Activar sonido' : 'Silenciar');
+        btn.title = isMuted ? 'Activar sonido' : 'Silenciar';
     }
 
     // Paneles: en clasico son modales; en waynyan reemplazan el contenido en el lugar (CSS)
@@ -328,7 +332,24 @@ class RaceGame {
         });
 
         const totalBets = this.bets.oros + this.bets.copas + this.bets.espadas + this.bets.bastos;
-        document.getElementById('total-bet-display').textContent = `$${totalBets}`;
+        const totalEl = document.getElementById('total-bet-display');
+        if (totalEl) totalEl.textContent = `$${totalBets}`;
+
+        // En paddock el pot de pista = tus apuestas (online lo pisa con el bote de la mesa)
+        if (this.phase === 'betting') {
+            this.potBySuit = { ...this.bets };
+            this.updateLanePots();
+        }
+    }
+
+    updateLanePots() {
+        ['oros', 'copas', 'espadas', 'bastos'].forEach((suitId) => {
+            const el = document.getElementById(`lane-pot-${suitId}`);
+            if (!el) return;
+            const amt = this.potBySuit[suitId] || 0;
+            el.textContent = amt > 0 ? `$${amt.toLocaleString()}` : '—';
+            el.classList.toggle('has-pot', amt > 0);
+        });
     }
 
     // Configura la cuadrícula visual de la pista (Alineación perfecta por CSS Grid variables)
@@ -377,13 +398,14 @@ class RaceGame {
             lane.className = `track-lane lane-${suitId}`;
             lane.id = `lane-${suitId}`;
 
-            // Etiqueta del carril (Columna 1: 140px)
+            // Etiqueta del carril + bote apostado a ese jinete
             let laneHtml = `
             <div class="lane-info" style="border-left-color: ${suit.color}">
                 <div class="lane-suit-icon">${getSuitSvg(suitId, 24)}</div>
                 <div class="lane-details">
                     <span class="lane-name">${suit.name.toUpperCase()}</span>
                     <span class="lane-horse-name">${suit.horseName}</span>
+                    <span class="lane-pot" id="lane-pot-${suitId}" title="Apuestas a este caballo">—</span>
                 </div>
             </div>`;
 
@@ -418,6 +440,7 @@ class RaceGame {
         suitsList.forEach(suitId => {
             this.renderHorseAt(suitId, 0);
         });
+        this.updateLanePots();
     }
 
     renderHorseAt(suitId, pos) {
@@ -442,6 +465,15 @@ class RaceGame {
 
         this.phase = 'racing';
         window.soundEffects.playBugleCall();
+
+        // Congelar apuestas visibles en la pista durante la carrera
+        this.lockedBets = {
+            oros: this.bets.oros,
+            copas: this.bets.copas,
+            espadas: this.bets.espadas,
+            bastos: this.bets.bastos
+        };
+        this.potBySuit = { ...this.lockedBets };
 
         // Preparar mazo
         this.deck.reset();
@@ -481,6 +513,7 @@ class RaceGame {
 
         this.updateDeckCountUI();
         this.updateSuitStats();
+        this.updateLanePots();
 
         this.setCommentary('🎺 ¡TOQUE DE CORNETA! ¡Se abren las gateras y los cuatro jinetes están listos para la largada!');
         
@@ -644,7 +677,7 @@ class RaceGame {
         );
     }
 
-    handleVictory(winningSuit) {
+    handleVictory(winningSuit, opts = {}) {
         this.phase = 'finished';
         this.winner = winningSuit;
         this.pauseRace();
@@ -652,85 +685,131 @@ class RaceGame {
         window.soundEffects.playVictory();
         this.startConfetti();
 
-        // Calcular ganancias
-        const userBet = this.bets[winningSuit] || 0;
-        const totalBet = this.bets.oros + this.bets.copas + this.bets.espadas + this.bets.bastos;
+        const snap = opts.lockedBets || this.lockedBets || { ...this.bets };
+        const userBet = snap[winningSuit] || 0;
+        const totalBet = (snap.oros || 0) + (snap.copas || 0) + (snap.espadas || 0) + (snap.bastos || 0);
         const multiplier = 4.0;
-        const prize = Math.round(userBet * multiplier);
+        let prize = Math.round(userBet * multiplier);
 
-        if (userBet > 0) this.bankroll += prize;
-        // Las apuestas quedan consumidas (antes se devolvían al volver al paddock)
-        this.bets = { oros: 0, copas: 0, espadas: 0, bastos: 0 };
-        this.saveBankroll();
+        // Online ya liquidó el bote en el server: no volver a pagar 4x local
+        if (opts.skipPayout) {
+            prize = opts.prize != null ? opts.prize : 0;
+            this.bets = { oros: 0, copas: 0, espadas: 0, bastos: 0 };
+        } else {
+            if (userBet > 0) this.bankroll += prize;
+            this.bets = { oros: 0, copas: 0, espadas: 0, bastos: 0 };
+            this.saveBankroll();
+        }
         this.updateBankrollUI();
         this.btnDraw.disabled = true;
         this.btnAuto.disabled = true;
 
-        // Clasificación final de los 4 caballos
         const ranking = Object.values(this.horses)
             .sort((a, b) => (b.suit === winningSuit) - (a.suit === winningSuit) || b.pos - a.pos);
 
-        // Renderizar modal de victoria
-        this.renderVictoryModal(winningSuit, prize, totalBet, ranking);
+        if (opts.detailsHtml) {
+            const modalContent = document.getElementById('victory-details');
+            if (modalContent) modalContent.innerHTML = ui(opts.detailsHtml);
+            this.openPanel(this.modalVictory);
+        } else {
+            this.renderVictoryModal(winningSuit, prize, totalBet, ranking, snap);
+        }
 
+        const youLine = opts.skipPayout
+            ? ''
+            : (userBet > 0
+                ? ` Tú ganaste $${prize.toLocaleString()}.`
+                : (totalBet > 0 ? ` Tú perdiste $${totalBet.toLocaleString()}.` : ''));
         this.setCommentary(
-            `🏁 ¡¡CRUZÓ EL DISCO!! ¡GANADOR DE LA CARRERA EL JINETE DE ${SUITS[winningSuit].name.toUpperCase()}!`
+            opts.commentary ||
+            `🏁 Gana ${SUITS[winningSuit].name}.${youLine}`
         );
     }
 
-    renderVictoryModal(winningSuit, prize, totalBet, ranking) {
+    renderVictoryModal(winningSuit, prize, totalBet, ranking, snapBets) {
         const suit = SUITS[winningSuit];
         const modalContent = document.getElementById('victory-details');
+        const snap = snapBets || this.lockedBets || {};
 
         let bettingSummary = '';
         if (totalBet > 0) {
             if (prize > 0) {
                 bettingSummary = `
                 <div class="victory-prize win">
-                    <span class="prize-title">🎉 ¡ACERTASTE TU APUESTA!</span>
-                    <span class="prize-amount">Ganaste +$${prize.toLocaleString()} fichas (Cuota 4.0x)</span>
+                    <span class="prize-title">Tú ganaste</span>
+                    <span class="prize-amount">+$${prize.toLocaleString()} (apostaste $${(snap[winningSuit] || 0).toLocaleString()} a ${suit.name} · 4x)</span>
                 </div>`;
             } else {
                 bettingSummary = `
                 <div class="victory-prize loss">
-                    <span class="prize-title">😢 Tu caballo no logró ganar esta vez</span>
-                    <span class="prize-sub">Perdiste tus $${totalBet} fichas apostadas. ¡Revancha en la próxima!</span>
+                    <span class="prize-title">Tú perdiste</span>
+                    <span class="prize-sub">−$${totalBet.toLocaleString()} en apuestas. El ganador fue ${suit.name}.</span>
                 </div>`;
             }
+        } else {
+            bettingSummary = `
+            <div class="victory-prize">
+                <span class="prize-title">Sin apuesta tuya</span>
+                <span class="prize-sub">Ganó el jinete de ${suit.name}.</span>
+            </div>`;
         }
 
-        // Resumen Modo Fiesta
-        let partySummary = '';
+        // Desglose por caballo: cuánto había y si ganó/perdió
+        const horseRows = ['oros', 'copas', 'espadas', 'bastos'].map((s) => {
+            const amt = snap[s] || 0;
+            const won = s === winningSuit;
+            let tip = amt <= 0 ? 'sin apuesta' : (won ? `ganó → +$${(amt * 4).toLocaleString()}` : `perdió −$${amt.toLocaleString()}`);
+            return `<li class="${won ? 'won' : (amt > 0 ? 'lost' : '')}"><strong>${SUITS[s].name}</strong>: $${amt.toLocaleString()} <em>${tip}</em></li>`;
+        }).join('');
+
+        const horseSummary = `
+        <div class="bet-breakdown">
+            <h4>Apuestas por caballo</h4>
+            <ul>${horseRows}</ul>
+        </div>`;
+
+        // Quién ganó / quién perdió (modo fiesta o tú)
+        let peopleSummary = '';
         if (this.gameMode === 'party' && this.partyPlayers.length > 0) {
             const winners = this.partyPlayers.filter(p => p.suit === winningSuit);
             const losers = this.partyPlayers.filter(p => p.suit !== winningSuit);
-
-            partySummary = `
-            <div class="party-results-box">
-                <h4>🍻 Resultados de la Ronda de Fiesta:</h4>
-                <div class="party-winners">
-                    <strong>🏆 Ganadores:</strong> ${winners.length > 0 ? winners.map(w => esc(w.name)).join(', ') : '¡Nadie apostó por este caballo!'}
+            peopleSummary = `
+            <div class="people-results">
+                <div class="people-col win">
+                    <h4>Ganaron</h4>
+                    ${winners.length
+                        ? `<ul>${winners.map(w => `<li><strong>${esc(w.name)}</strong> · ${SUITS[w.suit].name}${w.stake ? ` · ${esc(w.stake)}` : ''}</li>`).join('')}</ul>`
+                        : '<p>Nadie iba con este caballo</p>'}
                 </div>
-                <div class="party-losers">
-                    <strong>🎯 Retos para los demás:</strong>
-                    <ul>
-                        ${losers.map(l => `<li><strong>${esc(l.name)}</strong> (${SUITS[l.suit].name}): <em>${esc(l.stake)}</em></li>`).join('')}
-                    </ul>
+                <div class="people-col loss">
+                    <h4>Perdieron</h4>
+                    ${losers.length
+                        ? `<ul>${losers.map(l => `<li><strong>${esc(l.name)}</strong> · iba con ${SUITS[l.suit].name}${l.stake ? ` · reto: ${esc(l.stake)}` : ''}</li>`).join('')}</ul>`
+                        : '<p>—</p>'}
+                </div>
+            </div>`;
+        } else if (totalBet > 0) {
+            peopleSummary = `
+            <div class="people-results">
+                <div class="people-col ${prize > 0 ? 'win' : 'loss'}">
+                    <h4>${prize > 0 ? 'Ganaste tú' : 'Perdiste tú'}</h4>
+                    <ul><li><strong>Tú</strong> · ${prize > 0 ? `+$${prize.toLocaleString()}` : `−$${totalBet.toLocaleString()}`} · fichas ahora $${this.bankroll.toLocaleString()}</li></ul>
                 </div>
             </div>`;
         }
 
-        // Podio visual
         let podiumHtml = `<div class="podium-grid">`;
         ranking.forEach((h, index) => {
             const hSuit = SUITS[h.suit];
             const medal = IS_WAYNYAN ? ICON.rank(index + 1) : (index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '4º');
+            const pot = (this.potBySuit && this.potBySuit[h.suit]) || snap[h.suit] || 0;
             podiumHtml += `
             <div class="podium-item rank-${index + 1}" style="border-top-color: ${hSuit.color}">
                 <div class="podium-medal">${medal}</div>
                 <div class="podium-suit-icon">${getSuitSvg(h.suit, 28)}</div>
                 <div class="podium-name">${hSuit.name}</div>
-                <div class="podium-steps">${h.pos > this.totalSteps ? (IS_WAYNYAN ? ICON.flag : '🏆 Ganador') : (IS_WAYNYAN ? `${h.pos}/${this.totalSteps + 1}` : `Casilla ${h.pos}`)}</div>
+                <div class="podium-steps">${h.pos > this.totalSteps ? (IS_WAYNYAN ? ICON.flag : 'Ganador') : (IS_WAYNYAN ? `${h.pos}/${this.totalSteps + 1}` : `Casilla ${h.pos}`)}</div>
+                <div class="podium-pot">Bote $${Number(pot).toLocaleString()}</div>
             </div>`;
         });
         podiumHtml += `</div>`;
@@ -738,14 +817,15 @@ class RaceGame {
         modalContent.innerHTML = ui(`
             <div class="winner-hero" style="background: linear-gradient(135deg, ${suit.darkColor}, ${suit.color})">
                 <div class="winner-trophy">${IS_WAYNYAN ? ICON.trophy : '🏆'}</div>
-                <h2 class="winner-title">¡JINETE DE ${suit.name.toUpperCase()} ES EL CAMPEÓN!</h2>
+                <h2 class="winner-title">Gana ${suit.name.toUpperCase()}</h2>
                 <p class="winner-subtitle">${suit.horseName}</p>
                 <div class="winner-icon">${getSuitSvg(winningSuit, 70)}</div>
             </div>
             ${bettingSummary}
-            ${partySummary}
+            ${peopleSummary}
+            ${horseSummary}
             <div class="podium-container">
-                <h3>Posiciones Finales</h3>
+                <h3>Posiciones</h3>
                 ${podiumHtml}
             </div>
         `);
@@ -773,7 +853,7 @@ class RaceGame {
         this.updateDeckCountUI();
         this.updateSuitStats();
         this.setupTrackUI();
-        this.setCommentary('🏇 Prepara tus apuestas en el Paddock y presiona "¡A LAS GATERAS!" para comenzar.');
+        this.setCommentary('Paddock');
     }
 
     startAutoRace() {
